@@ -1,0 +1,101 @@
+= Lab Notes 02.01.16 =
+
+== Notes ==
+
+* comparing clusters in 
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ ls`
+`3group_table_rf_clusters.txt  clusters_networks.txt  lda_data.txt  rf_proximity_matrix.txt`
+
+* there is a header
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ wc -l ../my_maps/BRCA1_AltMethodERFs.mapwig `
+`1228 ../my_maps/BRCA1_AltMethodERFs.mapwig`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ wc -l 3group_table_rf_clusters.txt `
+`1229 3group_table_rf_clusters.txt`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ wc -l clusters_networks.txt `
+`1229 clusters_networks.txt`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ cut -f 1,2,3 ../my_maps/BRCA1_AltMethodERFs.mapwig >ERFs_coords.bed`
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{print $NF}' clusters_networks.txt | sed '1d' - | wc -l`
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{print $NF}' clusters_networks.txt | sed '1d' - | paste ERFs_coords.bed - > ERFs_network_clusters.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{print $NF}' 3group_table_rf_clusters.txt | sed '1d' - | paste ERFs_coords.bed - > ERFs_hierarchial_clusters.bed`
+
+* I don't even need to do this, the lda file has all the mapping info. The cluster .txts have all the mapping info already!
+* AND all the chromHMM info!
+
+> network<-read.delim("clusters_networks.txt", header=T)
+
+> net.m<-melt(network, id.vars=c("fc.membership"))
+
+> ggplot(net.m, aes(fc.membership, value, group=fc.membership, fill=factor(fc.membership))) + facet_grid(variable ~ ., scales="free_y") + geom_boxplot()
+
+> netvec<-rep("network", 1228)
+> netvec<-as.data.frame(netvec)
+> colnames(netvec) <- "group"
+> net.full<-cbind(network, netvec)
+> colnames(net.full)[colnames(net.full) == "fc.membership"] <- "cluster"
+
+> hiervec<-rep("hier", 1228)
+> hiervec<-as.data.frame(hiervec)
+> colnames(hiervec)<-"group"
+> hier.full<-cbind(hierarch, hiervec)
+> colnames(hier.full)[colnames(hier.full) == "group.3"] <- "cluster"
+
+> combo<-rbind(hier.full, net.full)
+> combo.m<-melt(combo, id.vars=c("cluster", "group"))
+
+> pdf("test.pdf", height=45)
+> ggplot(combo.m, aes(cluster, value, group=cluster, fill=factor(cluster))) + facet_grid(variable ~ group, scales="free") + geom_boxplot()
+> dev.off()
+
+* Now trying to get plot centered on just boxplot
+* found stackexhcange post where someone supposedly did this:
+`http://stackoverflow.com/questions/25124895/no-outliers-in-ggplot-boxplot-with-facet-wrap`
+
+> pdf("test.pdf", height=45)
+> ggplot(combo.m, aes(cluster, value, group=cluster, fill=factor(cluster))) + facet_grid(variable ~ group, scales="free") + geom_boxplot_noOutliers()
+> dev.off()
+
+* WORKS!!!
+* needed to install.packages("proto")
+
+
+> all<-network
+> all$fc.membership<-NULL
+> allvec<-rep("all", 1228)
+> allvec<-as.data.frame(allvec)
+> colnames(allvec)<-"group"
+> allvec2<-rep(1, 1228)
+> allvec2<-as.data.frame(allvec2)
+> colnames(allvec2)<-"cluster"
+> all.full<-cbind(all, allvec2, allvec)
+> combo<-rbind(combo, all.full)
+> combo.m<-melt(combo, id.vars=c("cluster", "group"))
+
+> pdf("test.pdf", height=45)
+> ggplot(combo.m, aes(cluster, value, group=cluster, fill=factor(cluster))) + facet_grid(variable ~ group, scales="free", space="free_x") + geom_boxplot_noOutliers() + theme_bw()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
+> dev.off()
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ mkdir network`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ mkdir tree`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 1) print $1 "\t" $2 "\t" $3}' ERFs_network_clusters.bed > network/clus1.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 2) print $1 "\t" $2 "\t" $3}' ERFs_network_clusters.bed > network/clus2.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 3) print $1 "\t" $2 "\t" $3}' ERFs_network_clusters.bed > network/clus3.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 4) print $1 "\t" $2 "\t" $3}' ERFs_network_clusters.bed > network/clus4.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ wc -l network/*`
+   `12 network/clus1.bed`
+   `76 network/clus2.bed`
+  `607 network/clus3.bed`
+  `533 network/clus4.bed`
+ `1228 total`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 1) print $1 "\t" $2 "\t" $3}' ERFs_hierarchial_clusters.bed > tree/clus1.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 2) print $1 "\t" $2 "\t" $3}' ERFs_hierarchial_clusters.bed > tree/clus2.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ awk '{if ($4 == 3) print $1 "\t" $2 "\t" $3}' ERFs_hierarchial_clusters.bed > tree/clus3.bed`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ cd tree/`
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare/tree$ wc -l *`
+  `424 clus1.bed`
+  `552 clus2.bed`
+  `252 clus3.bed`
+ `1228 total`
+

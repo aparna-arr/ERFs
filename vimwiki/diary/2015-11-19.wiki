@@ -1,0 +1,9 @@
+= Lab Notes 11.19.15 =
+
+== Notes ==
+
+* continuing with boxplot making script
+* mapping polII to everything. Also just realized I need genes to be a control.
+`arrajpur@crick:~/processing/stats/beds$ cp ../../yH2AX/mm9_clean_genes.bed .`
+
+

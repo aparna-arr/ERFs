@@ -1,0 +1,17 @@
+= Lab Notes 12.01.15 =
+
+== Notes ==
+
+* working on PCA, LDA, Kmeans analysis
+arrajpur@crick:~/processing/stats/LDA$ !./lda
+./lda.pl ~/processing/stats/beds/histone_map/ AltMethodERFs
+
+* have good pca & lda R scripts
+* kmeans works
+* need to find optimal # of clusters
+* hierarchal clustering DOES NOT WORK.
+* kmeans, pam do nto agree with hclust period
+* but ward.D doesn't look bad.
+* ward and kmeans appear to agree
+* ward's d2 also looks like 2 clusters: better
+*

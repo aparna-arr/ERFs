@@ -1,0 +1,40 @@
+= Lab Notes 10.22.15 =
+
+== Notes ==
+* working on heatmaps
+* Now that the R script technically works, going to make about a million
+* First, I want to see if the peaksplit RPA peaks have a center of strong signal with a surround of weak signal
+* so I will process them to 10kb (+-5) even though most are way smaller
+* Will use the M2P2 peaks, which I have to re-produce
+arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_RPA$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3;}' MAnorm_result.xls > 53BP1_RPA_peaksplit_M2P2.bed
+arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_RPA$ cp 53BP1_RPA_peaksplit_M2P2.bed ~/processing/heatmap/rpa/
+arrajpur@crick:~/processing/heatmap/rpa$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' 53BP1_RPA_peaksplit_M2P2.bed > out ; preprocess_bed_centered.pl out 5000 > 53BP1_RPA_M2P2_peaksplit_processed.bed
+* 10k sim WORKED and ran in 1 day!
+* cmd:
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/1$ srun -p bigmemh --cpus-per-task=25 --exclusive ../../metaplot-thread --readSplitWig ../0/wigsplit/ --threadChroms --threadBeds 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig combo10k.bed.tmp 10ksimRPA
+
+* continuing with heatmap:
+arrajpur@crick:~/processing/heatmap/rpa$ heatmap ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig 53BP1_RPA_M2P2_peaksplit_processed.bed 
+
+arrajpur@crick:~/processing/heatmap/rpa$ mv heatmap_outfile.txt RPA_peaks_10k_53BP1_1_heatmap.txt
+
+* wrote script smooth_heatmap.pl which is insanely stupid and inefficient but works to smooth the heatmap: 
+arrajpur@crick:~/processing/heatmap/rpa$ ls
+53BP1_RPA_M2P2_peaksplit_processed.bed  RPA_peaks_10k_53BP1_1_heatmap.txt.smooth
+[[53BP1_RPA_peaksplit_M2P2.bed]]            Rscript.R
+heatmap.png                             smooth_heatmap.pl
+RPA_peaks_10k_53BP1_1_heatmap.txt
+
+arrajpur@crick:~/processing/heatmap/rpa$ ./smooth_heatmap.pl RPA_peaks_10k_53BP1_1_heatmap.txt 100 1
+
+arrajpur@crick:~/processing/heatmap/rpa$ heatmap ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig 53BP1_RPA_M2P2_peaksplit_processed.bed 
+arrajpur@crick:~/processing/heatmap/rpa$ mv heatmap_outfile.txt RPA_peaks_10k_53BP1RPA_heatmap.txt
+arrajpur@crick:~/processing/heatmap/rpa$ ./smooth_heatmap.pl RPA_peaks_10k_53BP1RPA_heatmap.txt 100 1
+
+* yH2AX is weird going to try Alt ERF
+
+arrajpur@crick:~/processing/heatmap/alt-erfs$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' ~/processing/metaplot/AltMethodERFs.bed > AltMethodERFs.bed
+arrajpur@crick:~/processing/heatmap/alt-erfs$ preprocess_bed_centered.pl AltMethodERFs.bed 5000 > AltMethodERFs_processed.bed 
+arrajpur@crick:~/processing/heatmap/alt-erfs$ heatmap ~/processing/metaplot/RPA.wig AltMethodERFs_processed.bed 
+arrajpur@crick:~/processing/heatmap/alt-erfs$ ./smooth_heatmap.pl heatmap_outfile.txt 100 1
+

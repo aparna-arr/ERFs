@@ -1,0 +1,19 @@
+= Lab Notes 10.23.15 =
+
+== Notes ==
+* going to write perl script to sort peaks by certain avgs/signal over certain regions
+* wrote script sort_heatmap.pl to sort on various criteria
+arrajpur@crick:~/processing/heatmap/alt-erfs$ ./sort_heatmap.pl heatmap_outfile.txt.smooth center 1000 > center_1000_sort.txt
+arrajpur@crick:~/processing/heatmap/alt-erfs$ ./sort_heatmap.pl heatmap_outfile.txt.smooth all 1000 > all_1000_sort.txt
+* all is working!
+*
+> data<-read.delim("RPA_peaks_10k_53BP1RPA_heatmap.txt.smooth", header=F)
+> mat<-data.matrix(data[,2:ncol(data)-1])
+> summary(as.vector(mat))
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+    0.000     0.000     0.000     2.656     0.040 28340.000 
+> data<-read.delim("RPA_peaks_10k_53BP1_1_heatmap.txt.smooth", header=T)
+> mat<-data.matrix(data[,2:ncol(data)-1])
+> summary(as.vector(mat))
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+   0.0000    0.0000    0.0000    0.2614    0.0900 3072.0000 

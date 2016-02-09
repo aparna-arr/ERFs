@@ -1,0 +1,18 @@
+= Lab Notes 12.28.15 =
+
+== Notes ==
+ Running random forest w/ 100000 runs
+groups
+  1   2 
+919 309 
+  1   2 
+743 485 
+
+groups
+  1   2 
+776 452 
+
+groups
+  1   2 
+721 507 
+* so it appears there isn't much consistency ...

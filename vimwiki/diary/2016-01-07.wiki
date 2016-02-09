@@ -1,0 +1,71 @@
+= Lab Notes 1.07.16 =
+== Notes ==
+* try variable pruning in rf and also pca
+
+* how to do recursive var pruning in R manually:
+> corm<-cor(dat.t)
+# HIGHLY TRANSFORMED DATA
+library(caret)
+> highCor<-findCorrelation(corm, cutoff=0.7)
+> print(highCor)
+[1]  1 14  8  7  9
+
+then for each #
+
+
+> corm[,1] > 0.7,1]
+    BRCA1       RPA 
+1.0000000 0.7369391 
+> corm[corm[,14] > 0.7,14]
+  H3K4me3     polII 
+0.7458399 1.0000000 
+> corm[corm[,8] > 0.7,8]
+ H3K36me2   H3K4me1 
+0.7273818 1.0000000 
+> corm[corm[,7] > 0.7,7]
+         H3K36me3 X1_Txn_Elongation 
+        1.0000000         0.8149304 
+> corm[corm[,9] > 0.7,9]
+           H3K4me3              polII X7_Active_Promoter 
+         1.0000000          0.7458399          0.7130064 
+
+* so what I need to do is remove 1 feature randomly, re-run correlation, look at highly correlated vars, randomly remove 1, etc.
+
+> rownames(as.matrix(corm[corm[,9] > 0.7,9]))
+> length(as.matrix(corm[corm[,9] > 0.7,9]))
+[1] 3
+> floor(runif(1,min=1,max=length(mat)+1))
+[1] 1
+#get the name of the feature to remove in a very roundabout way (randomly select one of the highly correlated features)
+> rownames(as.matrix(mat[floor(runif(1,min=1,max=length(mat)+1)),]))
+[1] "polII"
+
+> highCor[1]
+[1] 1
+
+* take the first highCor index and do this
+* then repeat the correlation matrix
+* until length(highCor) == 0
+* wrote a recursive correlation variable pruning function:
+`arrajpur@crick:~/processing/stats/LDA$ ls recursiveVariablePruning.R `
+
+* USE THE SEED VERSION!
+> newdat<-featureSelectSeed(dat.t, 0.7,1)
+Removing [1] "BRCA1"
+
+Removing [1] "H3K4me3"
+
+Removing [1] "X1_Txn_Elongation"
+
+Removing [1] "H3K4me1"
+
+arrajpur@crick:~/processing/stats/LDA$ cp recursiveVariablePruning.R ~/github/utilities/
+
+* only use 0.7 as the cor limit though ... I think something is wrong->hardcoded 0.7 in there oops. Now it works (can use any cutoff)
+
+arrajpur@crick:~/processing/stats/LDA$ cp recursiveVariablePruning.R ~/github/utilities/
+
+how to pick all columns EXCEPT those not in second dataset:
+> filtered_df<-data[,!(colnames(data) == setdiff(names(data),names(dat.t)))]
+
+* reminder: spearman's makes a HUGE difference DO NOT USE EUCLIDEAN OR PEARSONS

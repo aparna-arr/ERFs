@@ -1,0 +1,19 @@
+= Lab Notes 10.12.15 =
+*  
+
+
+== Notes ==
+* Been debugging the C++ metaplot-thread, which is still not done
+* But several major bugs have been fixed
+* Wrote script remove_zeros.pl to remove lines (rows) in which both cols of a corr are zero (thus artificially pushing up correlation)
+
+`arrajpur@crick:~$ ./remove_zeros.pl 53BP1_minus_AID_tr_1_windows_10k_3col.mapwig 53BP1_minus_AID_tr_2_windows_10k_3col.mapwig 0`
+
+arrajpur@crick:~$ awk '{if ($4 < 40 && $5 < 40) print;}' combined_map.bed > combined_map_lt40.bed 
+arrajpur@crick:~$ mv combined_map.bed combined_map_AIDtr.bed
+arrajpur@crick:~$ mv combined_map_lt40.bed combined_map_lt40_AIDtr.bed 
+arrajpur@crick:~$ ./remove_zeros.pl 53BP1_minus_1_windows_10k_3col.mapwig 53BP1_minus_2_windows_10k_3col.mapwig 0
+arrajpur@crick:~$ awk '{if ($4 < 40 && $5 < 40) print;}' combined_map.bed > combined_map_lt40_53BP1.bed 
+arrajpur@crick:~$ mv combined_map.bed combined_map_53BP1.bed
+arrajpur@crick:~$ awk '{if ($4 < 30 && $5 < 30) print;}' combined_map_53BP1.bed > combined_map_lt30_53BP1.bed 
+

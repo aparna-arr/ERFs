@@ -1,0 +1,74 @@
+= Lab Notes 09.11.15 =
+
+== Notes ==
+* Metaplot C++ implementation appears to be not-segfaulting. Going to run yH2AX data from http://nar.oxfordjournals.org/content/40/13/5965.long to test as they have metaplot figures.
+
+`arrajpur@crick:~$ tar xvf GSE25577_RAW.tar`
+
+`arrajpur@crick:~/GSE25577$ awk '{if ($2 > 0) print;}' GSM628531_cd4_h2ax_1.bed > cd4_h2ax_cov.bed`
+
+`arrajpur@crick:~/GSE25577$ bedtools genomecov -bg -i cd4_h2ax_cov.bed -g ~/hg18.genome > CD4_H2AX_1.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ awk '{if ($2 > 0) print;}' GSM628531_cd4_h2ax_2.bed > cd4_h2ax_cov.bed`
+
+`arrajpur@crick:~/GSE25577$ bedtools genomecov -bg -i cd4_h2ax_cov.bed -g ~/hg18.genome > CD4_H2AX_2.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ bedgraph_to_wig.pl CD4_H2AX_1.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ bedgraph_to_wig.pl CD4_H2AX_2.bedgraph`
+
+`arrajpur@crick:~$ awk '{print $1 "\t" $2 "\t" $3}' refseq_hg18_all.bed > refseq_3col_hg18.bed`
+
+`arrajpur@crick:~$ mv refseq_3col_hg18.bed GSE25577/`
+
+`arrajpur@crick:~$ ~/github/allscriptszeus/scripts/metaplot/preprocess_bed.pl refseq_hg18_all.bed 3000 > refseq_genes_TSS_6kb.bed`
+
+`arrajpur@crick:~/github/metaplot_Cpp$ ./metaplot 6000 ../../GSE25577/CD4_H2AX_1.bedgraph.wig ../../GSE25577/refseq_genes_TSS_6kb.bed allgenes`
+
+* preprocessing is very slow ... also no cache
+
+* and it segfaulted
+
+=== DEBUG NOTES ===
+Your maxWindow is:
+6000
+Your wigfile is:
+../../GSE25577/CD4_H2AX_1.bedgraph.wig
+Your bedfiles are:
+../../GSE25577/refseq_genes_TSS_6kb.bed
+Your names are:
+allgenes
+
+On chromosome chr1
+Reading in wig file ... done.
+	On bedfile 0
+		Reading in bedfile ... done.
+Segmentation fault (core dumped)
+
+On chromosome chr1
+Reading in wig file ... done.
+	On bedfile 0
+		Reading in bedfile ... done.
+On bed chr chr1
+After get curr Bed and Wig peaks
+1st while
+before addSignal
+Segmentation fault (core dumped)
+ 
+<!-- End Debug notes --->
+
+`arrajpur@crick:~/GSE25577$ awk '{if ($2 > -1) print;}' GSM628531_cd4_h2ax_1.bed | bedtools genomecov -bga -i - -g ~/hg18.genome > CD4_H2AX_1.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ bedgraph_to_wig.pl CD4_H2AX_1.bedgraph`
+
+* cleaning genes made a HUGE difference! Also remove -bga and only use -bg
+
+`arrajpur@crick:~/GSE25577$ awk '{if ($2 > -1) print;}' GSM628531_cd4_h2ax_1.bed | bedtools genomecov -bg -i - -g ~/hg18.genome > CD4_H2AX_1.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ bedgraph_to_wig.pl CD4_H2AX_1.bedgraph`
+
+* going to try merging the h2ax datasets
+
+`arrajpur@crick:~/GSE25577$ cat GSM628531_cd4_h2ax_1.bed GSM628531_cd4_h2ax_2.bed | sort -k 1,1 -k 2,2n | awk '{if ($2 > -1) print;}' | bedtools genomecov -bg -i - -g ~/hg18.genome > CD4_H2AX.bedgraph`
+
+`arrajpur@crick:~/GSE25577$ bedgraph_to_wig.pl CD4_H2AX.bedgraph`

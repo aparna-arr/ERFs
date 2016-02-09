@@ -1,0 +1,6 @@
+= Lab Notes 09.15.15 =
+
+== Notes ==
+
+* Metaplot is weird looking because it is way to high res: need to do window size of X (default 100) and step of 1.
+* Might as well add debug params and finish the preprocessing function for bed AND now a wig one

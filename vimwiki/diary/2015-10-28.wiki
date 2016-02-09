@@ -1,0 +1,27 @@
+= Lab Notes 10.28.15 =
+
+== Notes ==
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ../../../yH2AX/metaplot/wigs/53BP1_minus_1.wig 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ../../../yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig 53BP1_AIDtr_RPA_M2P2_broadpeakmap_processed.bed 53BP1_AIDtr_RPA_M2P2_peaksplit_processed.bed `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 0 10000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ~/processing/yH2AX/mm9_clean_genes.bed genes`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ../../../yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig 53BP1_AIDtr_RPA_M2P2_broadpeakmap_processed.bed 53BP1_AIDtr_RPA_M2P2_peaksplit_processed.bed `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 0 10000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ~/processing/yH2AX/mm9_clean_genes.bed genes`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 10000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed RPA_broad RPA_narrow`
+
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed 
+
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/Genes$ heatmap.sh 10 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ../../raw/plus_mm9_clean_genes_processed_1kb.bed ../../raw/minus_mm9_clean_genes_processed_1kb.bed 
+
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/Genes$ heatmap.sh 10 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig ../../raw/plus_mm9_clean_genes_processed_1kb.bed ../../raw/minus_mm9_clean_genes_processed_1kb.bed 
+
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig 53BP1_AIDtr_RPA_M2P2_broadpeakmap_processed.bed 53BP1_AIDtr_RPA_M2P2_peaksplit_processed.bed 
+
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/Genes$ heatmap.sh 10 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ../../raw/plus_mm9_clean_genes_processed_1kb.bed ../../raw/minus_mm9_clean_genes_processed_1kb.bed ls
+arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/Genes/53BP1_AIDtr_1$ heatmap.sh 10 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ../../raw/plus_mm9_clean_genes_processed_1kb.bed ../../raw/minus_mm9_clean_genes_processed_1kb.bed 
+

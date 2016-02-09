@@ -1,0 +1,18 @@
+[[=]] Lab Notes 11.24.15 =
+
+== Notes ==
+* wrote bash script divide.sh
+`arrajpur@crick:~/processing/stats/resplit$ cp ../../metaplot/allbeds/beds/AltMethodERFs.bed.blacklistrm.1kbmin AltERFs.bed`
+`arrajpur@crick:~/processing/stats/resplit$ cp ../../metaplot/allbeds/beds/erfs_hotspots.bed.blacklistrm.1kbmin OrigERFs.bed`
+`arrajpur@crick:~/histone/wigs$ cp ~/processing/metaplot/BRCA1.wig .`
+`arrajpur@crick:~/histone/wigs$ cp ~/processing/metaplot/RPA.wig .`
+`arrajpur@crick:~/histone/wigs$ cp ~/processing/metaplot/SMC5.wig .`
+`arrajpur@crick:~/histone/wigs$ cp ~/polII/polII.wig .`
+`arrajpur@crick:~/histone/wigs$ cp ~/polII/RNAseq/HU_merge.wig .`
+* script appears to be bug free
+* RUN IN SCREEN it's massive
+
+`arrajpur@crick:~/processing/stats/resplit$ screen -S divide ./divide.sh save/AltERFs.bed ../../metaplot/RPA.wig ../../metaplot/BRCA1.wig ../../metaplot/SMC5.wig ~/polII/RNAseq/HU_merge.wig ~/polII/polII.wig save/OrigERFs.bed ~/histone/wigs/`
+
+`arrajpur@crick:~/processing/stats/resplit$ screen -S divide ./divide.sh save/OrigERFs.bed ../../metaplot/RPA.wig ../../metaplot/BRCA1.wig ../../metaplot/SMC5.wig ~/polII/RNAseq/HU_merge.wig ~/polII/polII.wig save/AltERFs.bed ~/histone/wigs/`
+

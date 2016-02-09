@@ -1,0 +1,47 @@
+= Lab Notes 12.10.15 =
+
+== Notes ==
+
+* fixed bug in pol2_poised_index.pl (very minor)
+* reran pol2_assign_erfs_poisedness.pl
+* Now have to remake graphs
+* graphs are all the same, yay R and auto NA handling in ggplot2
+* compare genes intersecting w/ERFs vs all genes and vs genes -v
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -u -a mm9_clean_genes_poisedness.out -b ~/processing/stats/beds/AltMethodERFs.bed > genes_u_ERFs_poisedness.bed`
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -v -a mm9_clean_genes_poisedness.out -b ~/processing/stats/beds/AltMethodERFs.bed > genes_v_ERFs_poisedness.bed`
+`> length(genes_u$V1)`
+`[1] 5099`
+`> sum(count$V8)`
+`[1] 5169`
+
+* for some reason, the -wo then assign-poisedness total genes do not match up with -u ...
+
+`> length(genes_v$V1)`
+`[1] 12652`
+
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -v -a ~/processing/stats/beds/histone_map/HU_merge_mm9_clean_genes.mapwig -b ~/processing/stats/beds/histone_map/HU_merge_AltMethodERFs.mapwig > HU_merge_genes_v_erfs.mapwig`
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -u -a ~/processing/stats/beds/histone_map/HU_merge_mm9_clean_genes.mapwig -b ~/processing/stats/beds/histone_map/HU_merge_AltMethodERFs.mapwig > HU_merge_genes_u_erfs.mapwig`
+
+* genes -u erfs have higher RNAseq than genes -v erfs
+
+* to define open vs closed etc chromatin, use ChromHMM
+* but ENCODE only did it for humans!
+
+* Well, this person did it for mouse: `https://github.com/gireeshkbogu/chromatin_states_chromHMM_mm9`
+
+* con: they did it for "spleen" not b-cells
+* Using it anyway ... or I could replicate their commands since they were nice enough to give a README
+`arrajpur@crick:~/processing/pol2_poised/chromHMM$ git clone https://github.com/gireeshkbogu/chromatin_states_chromHMM_mm9/`
+
+
+* note to self--its NOT SORTED
+* also ENCODE doesn't have the same kind of B cells as being used here
+* but I have all the histones with the exception of a good pol2
+* I'll run it with what I have and later redo with better histones/datasets
+* can crick run java?
+
+`arrajpur@crick:~/processing/pol2_poised/chromHMM$ wget http://compbio.mit.edu/ChromHMM/ChromHMM.zip`
+
+* drat I need bam files ...
+* encode B cell maybe. Spleen looks mostly okay except for bcell specific regions (igh)
+

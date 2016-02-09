@@ -1,0 +1,39 @@
+= Lab Notes 09.17.15 =
+
+== Notes ==
+* rerunning TSS metaplots for yH2AX because it crashed
+* also going to start some runs for ERFs 
+
+arrajpur@crick:~/processing/metaplot$ ls ERFs/
+brca1_metaplot  rpa_metaplot  smc5_metaplot
+
+`arrajpur@crick:~/processing/metaplot$ cp ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh/PRE5000_POST300000_MIN1000_M2_P2.txt AltMethodERFs.bed`
+`arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ srun -p bigmemm metaplot --preprocessBed 1 --preprocessWig 10000 ../../BRCA1.wig ../../AltMethodERFs.bed ERFs`
+`arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ srun -p bigmemm metaplot --preprocessWig 10000 ../../SMC5.wig ../../AltMethodERFs.bed.tmp ERFs`
+`arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ srun -p bigmemm metaplot --preprocessWig 10000 ../../RPA.wig ../../AltMethodERFs.bed.tmp ERFs`
+
+* need to make RPA peaks for yH2AX
+* Note all these metaplots have span=1 for smoothed wig
+
+* Making RPA broadpeaks for 53BP1 -/-
+
+`arrajpur@crick:~/processing/yH2AX/RPA_broadpeak$ BroadPeak -i ../53BP1_minus_RPA.bedgraph -m 53BP1_minus_RPA -g 2725765481 -t unsupervised`
+`arrajpur@crick:~/processing/yH2AX/RPA_broadpeak$ BroadPeak -i ../53BP1_AID_tr_RPA.bedgraph -m 53BP1_minus_AID_tr_RPA -g 2725765481 -t unsupervised`
+
+`arrajpur@crick:~/processing/yH2AX/RPA_peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../RPA_broadpeak/53BP1_minus_RPA/53BP1_minus_RPA_broad_peak_unsupervised/53BP1_minus_RPA_broad_peak_unsupervised.bed -w ../53BP1_minus_RPA.bedgraph -o . -u http://www.ensembl.org/~Cm38.reference/ -n 0`
+
+`arrajpur@crick:~/processing/yH2AX/RPA_peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../RPA_broadpeak/53BP1_minus_AID_tr_RPA/53BP1_minus_AID_tr_RPA_broad_peak_unsupervised/53BP1_minus_AID_tr_RPA_broad_peak_unsupervised.bed -w ../53BP1_AID_tr_RPA.bedgraph -o . -u http://www.ensembl.org/~Cm38.reference/ -n 0`
+
+`arrajpur@crick:~/processing/yH2AX/RPA_peaksplitter$ cut -f 1,2,3 53BP1_minus_AID_tr_RPA_broad_peak_unsupervised.subpeaks.bed > 53BP1_minus_AID_tr_RPA_peaks.bed`
+
+`arrajpur@crick:~/processing/yH2AX/RPA_peaksplitter$ cut -f 1,2,3 53BP1_minus_RPA_broad_peak_unsupervised.subpeaks.bed > 53BP1_minus_RPA_peaks.bed`
+
+`arrajpur@crick:~/processing/yH2AX/MAnorm$ cp ~/processing/MAnorm/MAnorm.* .`
+
+* started RPA MAnorm runs for yH2AX data
+
+`arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_RPA$ cp ~/processing/MAnorm/out/manorm_pval.pl ~/processing/MAnorm/out/plot_p_val_smc5_wce_broadsplit.R .` 
+
+`arrajpur@crick:~/processing/yH2AX/MAnorm/out$ cp ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/stats.sh .`
+
+* metaplots using sbatch are failing ... srun them 

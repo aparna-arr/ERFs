@@ -1,0 +1,17 @@
+= Lab Notes 12.07.15 =
+== Notes ==
+
+* wrote script:
+`arrajpur@crick:~/processing/pol2_poised$ ./pol2_assign_erfs_poisedness.pl `
+`usage: <output of pol2_poised_index.pl for genes (6 col)> <output of bedtools intersect -wo -a erfs (3 col) -b genes (4 col)> <outfile>`
+
+* to integrate genes poised data with erfs
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -wo -a ../stats/beds/AltMethodERFs.bed -b ../stats/beds/mm9_clean_genes.bed > erfs_wo_genes.bed`
+
+* and it works!
+`arrajpur@crick:~/processing/pol2_poised$ ./pol2_assign_erfs_poisedness.pl mm9_clean_genes_poisedness.out erfs_wo_genes.bed erfs_poisedness.out`
+
+* output file represents the % of genes overlapped by the ERF OF THOSE WITH POL2, what % are in each poisedness bin
+* Those genes which have high poisedness: what is their RNAseq?
+* ERFS: First: do those erfs w/ high poisedness of genes have more or fewer genes?
+* What marks do those genes with high poisedness associate with vs those with low poisedness? (biggest percentage in bin 3 vs bin 0 == high poisedness)

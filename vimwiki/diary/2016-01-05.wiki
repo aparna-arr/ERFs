@@ -1,0 +1,102 @@
+= Lab Notes 1.05.16 =
+
+== Notes ==
+
+* prep for metaplot
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ cat ../groseq/GROseq_positive.wig ../groseq/GROseq_negative.wig > GROseq_all.wig`
+
+arrajpur@crick:~/processing/pol2_poised/metaplot$ cp ../groseq/groseq_mm9_clean.bed.both.5000 .
+
+* nvm can't do a combined groseq, MUST split up + and - because of the wig
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ rm GROseq_all.wig `
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ rm groseq_mm9_clean.bed.both.5000 `
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ cp ../groseq/GROseq_positive.wig ../groseq/GROseq_negative.wig ../groseq/groseq_mm9_clean.bed.negative.5000 .`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ cp ../groseq/groseq_mm9_clean.bed.positive.5000 .`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadChroms --preprocessBed 0 5000 GROseq_positive.wig groseq_mm9_clean.bed.positive.5000 groseq_positive`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ Rscript metaplot_outfile.R`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a groseq_mm9_clean.bed.positive.5000 -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_mm9_clean_positive_5000_u_AltERFs.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -v -a groseq_mm9_clean.bed.positive.5000 -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_mm9_clean_positive_5000_v_AltERFs.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadBeds 2 --threadChroms --preprocessBed 0 5000 GROseq_positive.wig groseq_mm9_clean_positive_5000_u_AltERFs.bed groseq_mm9_clean_positive_5000_v_AltERFs.bed groseq_positive_u groseq_positive_v`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadBeds --threadChroms --preprocessBed 0 5000 GROseq_positive.wig groseq_mm9_clean_positive_5000_u_AltERFs.bed groseq_mm9_clean_positive_5000_v_AltERFs.bed groseq_mm9_clean.bed.positive.5000 groseq_positive_u groseq_positive_v groseq_positive_all`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.R groseq_pos_metaplot_outfile.R`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.txt groseq_pos_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.pdf groseq_pos_metaplot_outfile.pdf`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -v -a groseq_mm9_clean.bed.negative.5000 -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_mm9_clean_negative_5000_v_AltERFs.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a groseq_mm9_clean.bed.negative.5000 -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_mm9_clean_negative_5000_u_AltERFs.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadBeds --threadChroms --preprocessBed 0 5000 GROseq_negative.wig groseq_mm9_clean_negative_5000_u_AltERFs.bed groseq_mm9_clean_negative_5000_v_AltERFs.bed groseq_mm9_clean.bed.negative.5000 groseq_negative_u groseq_negative_v groseq_negative_all`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ Rscript metaplot_outfile.R`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.txt groseq_neg_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.R groseq_neg_metaplot_outfile.R`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mv metaplot_outfile.pdf groseq_neg_metaplot_outfile.pdf`
+
+* these metaplots clearly show genes overlapping with ERFs have higher paused pol2
+
+*added this line to R script to output file with group #s:
+`> write.table(group1data, "3group_table_rf_clusters.txt", sep="\t", row.names=FALSE)`
+arrajpur@crick:~/processing/stats/LDA$ cut -f 1,2,3 BRCA1_AltMethodERFs.mapwig.sort | diff - ../beds/AltMethodERFs.bed 
+arrajpur@crick:~/processing/stats/LDA$ awk -F '\t' '{print NF; exit}' 3group_table_rf_clusters.txt 
+32
+arrajpur@crick:~/processing/stats/LDA$ cut -f 32 3group_table_rf_clusters.txt | paste ../beds/AltMethodERFs.bed - > ERFs_with_cluster_num.bed
+
+But the first header line is printed!!
+
+arrajpur@crick:~/processing/stats/LDA$ cut -f 32 3group_table_rf_clusters.txt | tail -n +2 | paste ../beds/AltMethodERFs.bed - > ERFs_with_cluster_num.bed 
+
+* fixed
+
+`arrajpur@crick:~/processing/pol2_poised$ cp ../stats/LDA/ERFs_with_cluster_num.bed .`
+`arrajpur@crick:~/processing/pol2_poised$ awk '{if ($4 == 1) print $1 "\t" $2 "\t" $3}' ERFs_with_cluster_num.bed > ERFs_cluster1.bed`
+`arrajpur@crick:~/processing/pol2_poised$ awk '{if ($4 == 2) print $1 "\t" $2 "\t" $3}' ERFs_with_cluster_num.bed > ERFs_cluster2.bed`
+`arrajpur@crick:~/processing/pol2_poised$ awk '{if ($4 == 3) print $1 "\t" $2 "\t" $3}' ERFs_with_cluster_num.bed > ERFs_cluster3.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ cp ../../ERFs_cluster* .`
+`rrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster1.bed > groseq_mm9_clean_negative_5000_u_AltERFs_cluster1.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster1.bed > groseq_mm9_clean_negative_5000_v_AltERFs_cluster1.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster2.bed > groseq_mm9_clean_negative_5000_u_AltERFs_cluster2.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster3.bed > groseq_mm9_clean_negative_5000_u_AltERFs_cluster3.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster2.bed > groseq_mm9_clean_negative_5000_v_AltERFs_cluster2.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.negative.5000 -b ERFs_cluster3.bed > groseq_mm9_clean_negative_5000_v_AltERFs_cluster3.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster1.bed > groseq_mm9_clean_positive_5000_u_AltERFs_cluster1.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster2.bed > groseq_mm9_clean_positive_5000_u_AltERFs_cluster2.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -u -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster3.bed > groseq_mm9_clean_positive_5000_u_AltERFs_cluster3.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster3.bed > groseq_mm9_clean_positive_5000_v_AltERFs_cluster3.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster2.bed > groseq_mm9_clean_positive_5000_v_AltERFs_cluster2.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ bedtools intersect -v -a groseq_mm9_clean.bed.positive.5000 -b ERFs_cluster1.bed > groseq_mm9_clean_positive_5000_v_AltERFs_cluster1.bed`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ mkdir ../notcorrectformatbeds`
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ mv ERFs_cluster`
+`ERFs_cluster1.bed  ERFs_cluster2.bed  ERFs_cluster3.bed  `
+`arrajpur@crick:~/processing/pol2_poised/metaplot/beds$ mv ERFs_cluster* ../notcorrectformatbeds/`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mkdir positive`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ mkdir negative`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ cp beds/*positive* positive/`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ cp beds/*negative* negative/`
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ srun -p bigmemm --cpus-per-task=10 ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadChroms --threadBeds --preprocessBed 0 --readAllBedsInDir positive/ 5000 GROseq_positive.wig `
+
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ mkdir clusters
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters$ cp ../*.in .
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters$ cp ../../../ERFs_cluster* .
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters$ mkdir cluster1
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters$ mkdir cluster2
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters$ mkdir cluster3
+rrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters/cluster1$ srun -p bigmeml --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ERFs_cluster1.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters/cluster2$ srun -p bigmemm --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ERFs_cluster2.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters/cluster3$ srun -p bigmemh --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ERFs_cluster3.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters/cluster3$ srun -p bigmemh --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ERFs_cluster3.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim/clusters/cluster3$ srun -p bigmemh --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ERFs_cluster3.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out
+

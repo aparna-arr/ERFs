@@ -1,0 +1,44 @@
+= Lab Notes 11.12.15 =
+
+== Notes ==
+`arrajpur@crick:~/histone$ gzip -d GSM1088169_Bcell.CTCF.ChIPseq.bedgraph.gz `
+`arrajpur@crick:~/histone$ mv GSM1088169_Bcell.CTCF.ChIPseq.bedgraph CTCF.bedgrapj`
+`arrajpur@crick:~/histone$ mv CTCF.bedgrapj CTCF.bedgraph`
+
+* from GSE60005:
+`arrajpur@crick:~/histone$ ls *.gz ; gzip -d *`
+`GSM1463440_Mat_Bcell_H3K4me3.wig.gz       GSM1463444_Mat_Bcell_H3K9me2.wig.gz`
+`GSM1463441_Mat_Bcell_H3K27ac.wig.gz       GSM1463445_Mat_Bcell_H3K27me3_rep1.wig.gz`
+
+`GSM1463443_Mat_Bcell_H3K4me1_rep2.wig.gz  GSM1869130_Mat_B_H3K27ac_rep2.wig.gz`
+
+`arrajpur@crick:~/histone$ mv GSM1463444_Mat_Bcell_H3K9me2.wig H3K9me2.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463440_Mat_Bcell_H3K4me3.wig H3K4me3.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463441_Mat_Bcell_H3K27ac.wig H3K27ac.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463442_Mat_Bcell_H3K4me1_rep1.wig H3K4me1_rep1.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463443_Mat_Bcell_H3K4me1_rep2.wig H3K4me1_rep2.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463445_Mat_Bcell_H3K27me3_rep1.wig H3K27me3_GSE60005_rep1.wig`
+
+`arrajpur@crick:~/histone$ mv GSM1463446_Mat_Bcell_H3K27me3_rep2.wig H3K27me3_rep2.wig`
+
+`arrajpur@crick:~/histone$ mv H3K27me3_rep2.wig H3K27me3_GSE60005_rep2.wig`
+
+`arrajpur@crick:~/histone$ mv H3K27ac.wig H3K27ac_rep1.wig `
+
+`arrajpur@crick:~/histone$ mv GSM1869130_Mat_B_H3K27ac_rep2.wig H3K27ac_rep2.wig`
+
+`arrajpur@crick:~/histone$ bedgraph_to_wig.pl H3K36me3.bedgraph > H3K36me3.bedgraph.wig`
+
+`arrajpur@crick:~/histone$ bedgraph_to_wig.pl H3K27me3.bedgraph > H3K27me3.bedgraph.wig`
+
+`arrajpur@crick:~/histone$ mkdir wigs`
+
+`arrajpur@crick:~/histone$ mv *.wig wigs/`
+
+`arrajpur@crick:~/histone$ bedgraph_to_wig.pl CTCF.bedgraph > CTCF.bedgraph.wig`
+

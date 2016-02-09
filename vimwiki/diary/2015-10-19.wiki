@@ -1,0 +1,6 @@
+= Lab Notes 10.19.15 =
+== Notes ==
+* Stopping development on alternate sliding window alg because it is taking forever and there are infinite edge cases. Wrote quick sliding window function instead of mapWig()
+* --threadDivisions is buggy do not use
+* --threadChroms and --threadBeds crash on a real file
+

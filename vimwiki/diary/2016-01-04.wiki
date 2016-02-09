@@ -1,0 +1,109 @@
+= Lab Notes 1.04.16 =
+
+== Notes ==
+
+* shuffle finished:
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ srun -p bigmeml --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ~/processing/stats/beds/AltMethodERFs.bed 9_Strong_Enhancer.in 6_Strong_Enhancer.in 12_Heterochrom.in 4_Poised_Enhancer.in 7_Active_Promoter.in 10_Poised_Promoter.in 9_Txn_Transition.in 1_Txn_Elongation.in 8_Strong_Enhancer.in 14_Heterochrom.in 11_Repressed.in 13_Heterochrom.in 15_Insulator.in 2_Weak_Txn.in 5_Active_Promoter.in  9_Strong_Enhancer_alterfs.out 6_Strong_Enhancer_alterfs.out 12_Heterochrom_alterfs.out 4_Poised_Enhancer_alterfs.out 7_Active_Promoter_alterfs.out 10_Poised_Promoter_alterfs.out 9_Txn_Transition_alterfs.out 1_Txn_Elongation_alterfs.out 8_Strong_Enhancer_alterfs.out 14_Heterochrom_alterfs.out 11_Repressed_alterfs.out 13_Heterochrom_alterfs.out 15_Insulator_alterfs.out 2_Weak_Txn_alterfs.out 5_Active_Promoter_alterfs.out`
+
+* real intersect bp's
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ for f in *in; do echo $f; bedtools intersect -a $f -b ~/processing/stats/beds/AltMethodERFs.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum}' ; done`
+`10_Poised_Promoter.in`
+`1244718`
+`11_Repressed.in`
+`7218951`
+`12_Heterochrom.in`
+`93487039`
+`13_Heterochrom.in`
+`26941958`
+`14_Heterochrom.in`
+`49645832`
+`15_Insulator.in`
+`906695`
+`1_Txn_Elongation.in`
+`42796260`
+`2_Weak_Txn.in`
+`50987439`
+`4_Poised_Enhancer.in`
+`690263`
+`5_Active_Promoter.in`
+`2218225`
+`6_Strong_Enhancer.in`
+`203879`
+`7_Active_Promoter.in`
+`3919826`
+`8_Strong_Enhancer.in`
+`7649382`
+`9_Strong_Enhancer.in`
+`5974007`
+`9_Txn_Transition.in`
+`3156458`
+
+* total # of bp in each sample
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ for f in *in; do echo $f; awk '{print $3 - $2}' $f | awk '{sum+=$1} END {print sum}' ; done`
+`10_Poised_Promoter.in`
+`4555200`
+`11_Repressed.in`
+`29572000`
+`12_Heterochrom.in`
+`733077400`
+`13_Heterochrom.in`
+`1367203400`
+`14_Heterochrom.in`
+`157063200`
+`15_Insulator.in`
+`3067400`
+`1_Txn_Elongation.in`
+`123065200`
+`2_Weak_Txn.in`
+`185465600`
+`4_Poised_Enhancer.in`
+`1155800`
+`5_Active_Promoter.in`
+`7398400`
+`6_Strong_Enhancer.in`
+`549400`
+`7_Active_Promoter.in`
+`10039200`
+`8_Strong_Enhancer.in`
+`13925600`
+`9_Strong_Enhancer.in`
+`13507400`
+`9_Txn_Transition.in`
+`5248000`
+* total bp in AltERFs
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ awk '{print $3 - $2}' ~/processing/stats/beds/AltMethodERFs.bed | awk '{sum+=$1} END {print sum}' `
+`297040932`
+
+* perl script to plot boxplots of sim
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ chmod +x plot_simulation_boxplots_chromHMM.pl `
+
+* for some reason perl does not think ~/processing/stats/beds/AltMethodERFs.bed exists
+
+`arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ cp ~/processing/stats/beds/AltMethodERFs.bed .`
+
+* but it works when in the same directory
+
+
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ mv R_script_simulation.R R_sim_plot_code.R
+
+* Enhancers looking VERY significant!
+
+* fixed groseq pol2 poisedness errors
+`arrajpur@crick:~/processing/pol2_poised$ srun -p bigmemm ./pol2_poised_index.pl groseq/groseq_mm9_clean.bed.positive.5000 groseq/GROseq_positive.wig 10 1500 groseq_positive_poisedness.out`
+`arrajpur@crick:~/processing/pol2_poised$ srun -p bigmemm ./pol2_poised_index.pl groseq/groseq_mm9_clean.bed.negative.5000 groseq/GROseq_negative.wig 10 1500 groseq_negative_poisedness.out`
+
+`arrajpur@crick:~/processing/pol2_poised$ cat groseq_positive_poisedness.out groseq_negative_poisedness.out > groseq_poisedness_combined`
+
+`arrajpur@crick:~/processing/pol2_poised$ cat groseq/groseq_mm9_clean.bed.positive.5000 groseq/groseq_mm9_clean.bed.negative.5000 > groseq/groseq_mm9_clean.bed.both.5000`
+
+`arrajpur@crick:~/processing/pol2_poised$ ./pol2_assign_erfs_poisedness.pl groseq_poisedness_combined groseq/groseq_mm9_clean.bed.both.5000 erfs_groseq_poisedness.bed`
+
+* so many errors-> forgot to do intersect
+
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -wo -a ~/processing/stats/beds/AltMethodERFs.bed -b groseq/groseq_mm9_clean.bed.both.5000 > groseq_intersect`
+`arrajpur@crick:~/processing/pol2_poised$ ./pol2_assign_erfs_poisedness.pl groseq_poisedness_combined groseq_intersect erfs_groseq_poisedness.bed`
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -u -a groseq_poisedness_combined -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_genes_u_ERFs_all.bed`
+`arrajpur@crick:~/processing/pol2_poised$ bedtools intersect -v -a groseq_poisedness_combined -b ~/processing/stats/beds/AltMethodERFs.bed > groseq_genes_v_ERFs_all.bed`
+`arrajpur@crick:~/processing/pol2_poised$ vim barplot_groseq.R `
+
+* exactly the same trends as pol2

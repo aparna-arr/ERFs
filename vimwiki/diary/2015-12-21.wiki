@@ -1,0 +1,47 @@
+= Lab Notes 12.21.15 =
+== Notes ==
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl ~/processing/stats/beds/histone_map/ ~/processing/stats/beds/mm9_clean_genes.bed AltMethodERFs
+
+* pca.R and lda.pl in ~/processing/stats/LDA? are the correct ones
+arrajpur@crick:~/processing/stats/LDA$ mkdir my_maps
+arrajpur@crick:~/processing/stats/LDA/my_maps$ mv H3K27me3_AltMethodERFs.mapwig H3K27me3_AltMethodERFs.mapwig.ignore
+* adding gene_num hugely affects clustering
+number of clusters estimated by optimum average silhouette width: 2 
+groups
+   1    2 
+1047  181 
+
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl my_maps/ ~/processing/stats/beds/mm9_clean_genes.bed AltMethodERFs
+
+* removing H3K27me3 that was bad (not GSE600) makes it better
+groups
+  1   2 
+826 402 
+
+hierarchical clustering is very sensitive, indicates not very strong clustering
+
+arrajpur@crick:~/processing/stats/LDA/my_maps$ mv CTCF_AltMethodERFs.mapwig CTCF_AltMethodERFs.mapwig.ignore
+
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl my_maps/ ~/processing/stats/beds/mm9_clean_genes.bed AltMethodERFs
+
+* taking out CTCF screws it up again
+groups
+   1    2 
+1058  170 
+
+* but variance explained 90% goes down to first 8 PCs
+arrajpur@crick:~/processing/stats/LDA/my_maps$ mv H3K36me3_AltMethodERFs.mapwig H3K36me3_AltMethodERFs.mapwig.ignore
+
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl my_maps/ ~/processing/stats/beds/mm9_clean_genes.bed AltMethodERFs
+groups
+   1    2 
+1174   54 
+
+* try random forest machine learning alg to make clusters? randomForest is an R package
+
+arrajpur@crick:~/processing/stats/LDA$ cp pca.R pca_randomForest.R
+
+* un-ignored everything
+
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl my_maps/ ~/processing/stats/beds/mm9_clean_genes.bed AltMethodERFs
+ 

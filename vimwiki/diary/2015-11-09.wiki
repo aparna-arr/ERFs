@@ -1,0 +1,148 @@
+= Lab Notes 11.9.15 =
+
+== Notes ==
+* wrote script :
+`arrajpur@crick:~/processing/stats/RNAseq_map$ vim ../unique_common.R `
+* that plots things fast and I can reuse this thing for other kinds of plot
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../unique_common.R HU_merge_AltMethodERFs_unique.mapwig HU_merge_AltMethodERFs_common.mapwig HU_merge_erfs_hotspots_unique.mapwig HU_merge_erfs_hotspots_common.mapwig RNAseq`
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../unique_common.R polII_AltMethodERFs_unique.mapwig polII_AltMethodERFs_common.mapwig polII_erfs_hotspots_unique.mapwig polII_erfs_hotspots_common.mapwig Pol2`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../unique_common.R RPA_AltMethodERFs_unique.mapwig RPA_AltMethodERFs_common.mapwig RPA_erfs_hotspots_unique.mapwig RPA_erfs_hotspots_common.mapwig RPA`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../unique_common.R BRCA1_AltMethodERFs_unique.mapwig BRCA1_AltMethodERFs_common.mapwig BRCA1_erfs_hotspots_unique.mapwig BRCA1_erfs_hotspots_common.mapwig BRCA1`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../unique_common.R SMC5_AltMethodERFs_unique.mapwig SMC5_AltMethodERFs_common.mapwig SMC5_erfs_hotspots_unique.mapwig SMC5_erfs_hotspots_common.mapwig SMC5`
+
+* wrote split_by_sample.R
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_ChipSeq_AltERFs.mapwig HU_merge_middle_by_ChipSeq_AltERFs.mapwig HU_merge_bottom_by_ChipSeq_AltERFs.mapwig ChIPseq RNAseq AltERFs`
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_ChipSeq_orig_erfs.mapwig HU_merge_middle_by_ChipSeq_orig_erfs.mapwig HU_merge_bottom_by_ChipSeq_orig_erfs.mapwig ChIPseq RNAseq OrigERFs`
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_ChipSeq_AltERFs.mapwig polII_middle_by_ChipSeq_AltERFs.mapwig polII_bottom_by_ChipSeq_AltERFs.mapwig ChIPseq Pol2 AltERFs`
+
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_ChipSeq_orig_erfs.mapwig polII_middle_by_ChipSeq_orig_erfs.mapwig polII_bottom_by_ChipSeq_orig_erfs.mapwig ChIPseq Pol2 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_ChipSeq_AltERFs.mapwig RPA_middle_by_ChipSeq_AltERFs.mapwig RPA_bottom_by_ChipSeq_AltERFs.mapwig ChIPseq RPA AltERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_ChipSeq_orig_erfs.mapwig RPA_middle_by_ChipSeq_orig_erfs.mapwig RPA_bottom_by_ChipSeq_orig_erfs.mapwig ChIPseq RPA OrigERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_ChipSeq_AltERFs.mapwig BRCA1_middle_by_ChipSeq_AltERFs.mapwig BRCA1_bottom_by_ChipSeq_AltERFs.mapwig ChIPseq BRCA1 AltERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_ChipSeq_orig_erfs.mapwig BRCA1_middle_by_ChipSeq_orig_erfs.mapwig BRCA1_bottom_by_ChipSeq_orig_erfs.mapwig ChIPseq BRCA1 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_ChipSeq_AltERFs.mapwig SMC5_middle_by_ChipSeq_AltERFs.mapwig SMC5_bottom_by_ChipSeq_AltERFs.mapwig ChIPseq SMC5 AltERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_ChipSeq_orig_erfs.mapwig SMC5_middle_by_ChipSeq_orig_erfs.mapwig SMC5_bottom_by_ChipSeq_orig_erfs.mapwig ChIPseq SMC5 OrigERFs`
+
+* split by RNAseq
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_RNAseq_AltERFs.mapwig HU_merge_middle_by_RNAseq_AltERFs.mapwig HU_merge_bottom_by_RNAseq_AltERFs.mapwig RNAseq RNAseq AltERFs`
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_RNAseq_orig_erfs.mapwig HU_merge_middle_by_RNAseq_orig_erfs.mapwig HU_merge_bottom_by_RNAseq_orig_erfs.mapwig RNAseq RNAseq OrigERFs`
+
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_RNAseq_AltERFs.mapwig polII_middle_by_RNAseq_AltERFs.mapwig polII_bottom_by_RNAseq_AltERFs.mapwig RNAseq Pol2 AltERFs`
+
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_RNAseq_orig_erfs.mapwig polII_middle_by_RNAseq_orig_erfs.mapwig polII_bottom_by_RNAseq_orig_erfs.mapwig RNAseq Pol2 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_RNAseq_AltERFs.mapwig RPA_middle_by_RNAseq_AltERFs.mapwig RPA_bottom_by_RNAseq_AltERFs.mapwig RNAseq RPA AltERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_RNAseq_orig_erfs.mapwig RPA_middle_by_RNAseq_orig_erfs.mapwig RPA_bottom_by_RNAseq_orig_erfs.mapwig RNAseq RPA OrigERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_RNAseq_AltERFs.mapwig BRCA1_middle_by_RNAseq_AltERFs.mapwig BRCA1_bottom_by_RNAseq_AltERFs.mapwig RNAseq BRCA1 AltERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_RNAseq_orig_erfs.mapwig BRCA1_middle_by_RNAseq_orig_erfs.mapwig BRCA1_bottom_by_RNAseq_orig_erfs.mapwig RNAseq BRCA1 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_RNAseq_AltERFs.mapwig SMC5_middle_by_RNAseq_AltERFs.mapwig SMC5_bottom_by_RNAseq_AltERFs.mapwig RNAseq SMC5 AltERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_RNAseq_orig_erfs.mapwig SMC5_middle_by_RNAseq_orig_erfs.mapwig SMC5_bottom_by_RNAseq_orig_erfs.mapwig RNAseq SMC5 OrigERFs`
+
+* split by pol2
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_polII_AltMethodsERFs.mapwig HU_merge_middle_by_polII_AltMethodsERFs.mapwig HU_merge_bottom_by_polII_AltMethodsERFs.mapwig Pol2 RNAseq AltERFs`
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ Rscript ../split_by_sample.R HU_merge_top_by_polII_orig_erfs.mapwig HU_merge_middle_by_polII_orig_erfs.mapwig HU_merge_bottom_by_polII_orig_erfs.mapwig Pol2 RNAseq OrigERFs`
+
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_polII_AltMethodsERFs.mapwig polII_middle_by_polII_AltMethodsERFs.mapwig polII_bottom_by_polII_AltMethodsERFs.mapwig Pol2 Pol2 AltERFs`
+
+`arrajpur@crick:~/processing/stats/polII_map$ Rscript ../split_by_sample.R polII_top_by_polII_orig_erfs.mapwig polII_middle_by_polII_orig_erfs.mapwig polII_bottom_by_polII_orig_erfs.mapwig Pol2 Pol2 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_polII_AltMethodsERFs.mapwig RPA_middle_by_polII_AltMethodsERFs.mapwig RPA_bottom_by_polII_AltMethodsERFs.mapwig Pol2 RPA AltERFs`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ Rscript ../split_by_sample.R RPA_top_by_polII_orig_erfs.mapwig RPA_middle_by_polII_orig_erfs.mapwig RPA_bottom_by_polII_orig_erfs.mapwig Pol2 RPA OrigERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_polII_AltMethodsERFs.mapwig BRCA1_middle_by_polII_AltMethodsERFs.mapwig BRCA1_bottom_by_polII_AltMethodsERFs.mapwig Pol2 BRCA1 AltERFs`
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ Rscript ../split_by_sample.R BRCA1_top_by_polII_orig_erfs.mapwig BRCA1_middle_by_polII_orig_erfs.mapwig BRCA1_bottom_by_polII_orig_erfs.mapwig Pol2 BRCA1 OrigERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_polII_AltMethodsERFs.mapwig SMC5_middle_by_polII_AltMethodsERFs.mapwig SMC5_bottom_by_polII_AltMethodsERFs.mapwig Pol2 SMC5 AltERFs`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ Rscript ../split_by_sample.R SMC5_top_by_polII_orig_erfs.mapwig SMC5_middle_by_polII_orig_erfs.mapwig SMC5_bottom_by_polII_orig_erfs.mapwig Pol2 SMC5 OrigERFs`
+
+* wrote script split_by_sample_corr.R to make corr plots
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_top_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_top_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_top_by_RNAseq_AltERFs.mapwig Top_by_RNAseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_middle_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_middle_by_RNAseq_AltERFs.mapwig Middle_by_RNAseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_bottom_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_bottom_by_RNAseq_AltERFs.mapwig Bottom_by_RNAseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_top_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_top_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_top_by_RNAseq_orig_erfs.mapwig Top_by_RNAseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_middle_by_RNAseq_orig_erfs.mapwig Middle_by_RNAseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_RNAseq_orig_erfs.mapwig Bottom_by_RNAseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_top_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_top_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_top_by_ChipSeq_AltERFs.mapwig Top_by_ChIPseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_middle_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_middle_by_ChipSeq_AltERFs.mapwig Middle_by_ChIPseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_bottom_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_bottom_by_ChipSeq_AltERFs.mapwig Bottom_by_ChIPseq_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_top_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_top_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_top_by_ChipSeq_orig_erfs.mapwig Top_by_ChIPseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_middle_by_ChipSeq_orig_erfs.mapwig Middle_by_ChIPseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_ChipSeq_orig_erfs.mapwig Bottom_by_ChIPseq_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_top_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_top_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_top_by_polII_AltMethodsERFs.mapwig Top_by_Pol2_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_middle_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_middle_by_polII_AltMethodsERFs.mapwig Middle_by_Pol2_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_bottom_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_bottom_by_polII_AltMethodsERFs.mapwig Bottom_by_Pol2_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_middle_by_polII_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_polII_orig_erfs.mapwig SMC5_map/SMC5_middle_by_polII_orig_erfs.mapwig Middle_by_Pol2_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_bottom_by_polII_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_polII_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_polII_orig_erfs.mapwig Bottom_by_Pol2_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_AltMethodERFs_unique.mapwig BRCA1_map/BRCA1_AltMethodERFs_unique.mapwig SMC5_map/SMC5_AltMethodERFs_unique.mapwig Unique_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_AltMethodERFs_common.mapwig BRCA1_map/BRCA1_AltMethodERFs_common.mapwig SMC5_map/SMC5_AltMethodERFs_common.mapwig Common_AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_erfs_hotspots_common.mapwig BRCA1_map/BRCA1_erfs_hotspots_common.mapwig SMC5_map/SMC5_erfs_hotspots_common.mapwig Common_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_erfs_hotspots_unique.mapwig BRCA1_map/BRCA1_erfs_hotspots_unique.mapwig SMC5_map/SMC5_erfs_hotspots_unique.mapwig Unique_OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_AltMethodERFs.mapwig BRCA1_map/BRCA1_AltMethodERFs.mapwig SMC5_map/SMC5_AltMethodERFs.mapwig AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_corr.R RPA_map/RPA_erfs_hotspots.mapwig BRCA1_map/BRCA1_erfs_hotspots.mapwig SMC5_map/SMC5_erfs_hotspots.mapwig OrigERFs`
+
+* now need to make metaplots
+`arrajpur@crick:~/processing/metaplot$ mkdir SplitByChipseq`
+
+`arrajpur@crick:~/processing/metaplot$ mkdir SplitByRNAseq`
+
+`arrajpur@crick:~/processing/metaplot$ mkdir SplitByPolII`
+
+`arrajpur@crick:~/processing/metaplot$ mkdir UniqueAndCommon`
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+* trying with bigger window
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 --window 10000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+* now running with 5k cause 10k is too much of a smooth for 40k total
+* tried a 1k smooth too--5k looks like the best option
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+

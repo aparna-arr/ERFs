@@ -1,0 +1,154 @@
+= Lab Notes 11.4.15 =
+
+== Notes ==
+
+* With a smooth of 5k, we finally do see the trend of peak at center. Not on AltERFs though. Smoothing to 10k
+
+`arrajpur@crick:~/polII/RNAseq$ screen srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --window 10000 --threadBeds 1 40000 HU_merge.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs `
+
+* going to metaplot PolII
+
+`arrajpur@crick:~/polII$ bedgraph_to_wig.pl GSM594830_ActivatedBCell_PolII.bedGraph > polII.wig`
+
+`arrajpur@crick:~/polII/polII_metaplot$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 ../polII.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs`
+
+* it ran super fast ...
+
+* signal is very low but OrigERFs has a trend AltERFs doesn't. Possibilities: AltERFs is too diluted with lower-signal peaks, AltERFs are bigger than OrigERFs, center of AltERFs does not match center of OrigERFs (ie more random) AltERFs are not picking up the same stuff as OrigERFs.
+* Need to test how genic AltERFs are too
+
+`arrajpur@crick:~$ bedtools intersect -u -a processing/yH2AX/mm9_clean_genes.bed -b processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin | wc -l`
+`6723`
+
+`arrajpur@crick:~$ bedtools intersect -u -b processing/yH2AX/mm9_clean_genes.bed -a processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin | wc -l`
+`1083`
+
+`arrajpur@crick:~$ wc -l processing/yH2AX/mm9_clean_genes.bed`
+`24485 processing/yH2AX/mm9_clean_genes.bed`
+
+`arrajpur@crick:~$ wc -l processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin`
+`1228 processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin`
+
+`arrajpur@crick:~$ bedtools intersect -u -a processing/yH2AX/mm9_clean_genes.bed -b erfs_hotspots.bed | wc -l`
+`2841`
+`arrajpur@crick:~$ bedtools intersect -u -b processing/yH2AX/mm9_clean_genes.bed -a erfs_hotspots.bed | wc -l`
+`572`
+
+`arrajpur@crick:~$ wc -l erfs_hotspots.bed`
+`619 erfs_hotspots.bed`
+
+* % origERFs that overlap with genes
+`572/619`
+`.92407108239095315024`
+
+* % genes that overlap with OrigERFs
+`2841/24485`
+`.11603022258525627935`
+
+* % AltERFs that overlap with genes:
+`1083/1228`
+`.88192182410423452768`
+
+* % genes that overlap with AltERFs
+`6723/24485`
+`.27457627118644067796`
+
+* increasing window in faint hope ...
+
+* another possibility: OrigERFs might have some blacklisters
+* where in the peak are the genes?
+
+`arrajpur@crick:~/polII/gene_metaplot$ awk '{print $1 "\t" $2 "\t" $3 "\t1"}' ~/processing/yH2AX/mm9_clean_genes.bed > mm9_clean_genes_count_col.bedgraph`
+
+`arrajpur@crick:~/polII/gene_metaplot$ bedgraph_to_wig.pl mm9_clean_genes_count_col.bedgraph > mm9_clean_genes_count_col.wig`
+
+* okay that didn't work because bedgraph_to_wig just merged all overlapping regions.
+* Actually it didn't ... how did I make the cleangenes file?
+
+`arrajpur@crick:~/polII/gene_metaplot$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 mm9_clean_genes_count_col.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs`
+
+* to find the "top" hits, sort AltERFs by first RPA, then BRCA1, then SMC5 signal (from mapwig files)
+
+* okay the gene metaplots idea did not work out
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_AltMethodERFs.mapwig | paste RPA_AltMethodERFs.mapwig - > tmp`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 SMC5_AltMethodERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_AltERFs.mapwig`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_AltERFs.mapwig | head -n 409 > ../top_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_AltERFs.mapwig | tail -n 409 > ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_AltERFs.mapwig | head -n 818 | tail -n 410 > ../middle_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing$ sort -k 1,1 -k 2,2n top_Alt_ERFs.bed | awk '{print $1 "\t" $2 "\t" $3}' > top_Alt_ERFs.bed.sort`
+
+`arrajpur@crick:~/processing$ sort -k 1,1 -k 2,2n middle_Alt_ERFs.bed | awk '{print $1 "\t" $2 "\t" $3}' > middle_Alt_ERFs.bed.sort`
+
+`arrajpur@crick:~/processing$ sort -k 1,1 -k 2,2n bottom_Alt_ERFs.bed | awk '{print $1 "\t" $2 "\t" $3}' > bottom_Alt_ERFs.bed.sort`
+
+`arrajpur@crick:~/polII/gene_metaplot$ srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --window 1000 --threadBeds 1 80000 ../polII.wig ~/processing/top_Alt_ERFs.bed.sort ~/processing/middle_Alt_ERFs.bed.sort ~/processing/bottom_Alt_ERFs.bed.sort ~/erfs_hotspots.bed AltERFs_top AltERFs_middle AltERFs_bottom OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/RNAseq/HU_merge.wig ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_AltMethodERFs.mapwig | head -n 409 | awk '{print $1 "\t" $2 "\t" $3}' > top_by_RNAseq_AltERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_AltMethodERFs.mapwig | head -n 819 | tail -n 410 | awk '{print $1 "\t" $2 "\t" $3}' > middle_by_RNAseq_AltERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_AltMethodERFs.mapwig | tail -n 409 | awk '{print $1 "\t" $2 "\t" $3}' > bottom_by_RNAseq_AltERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/RPA.wig top_by_RNAseq_AltERFs.bed middle_by_RNAseq_AltERFs.bed bottom_by_RNAseq_AltERFs.bed `
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/BRCA1.wig top_by_RNAseq_AltERFs.bed middle_by_RNAseq_AltERFs.bed bottom_by_RNAseq_AltERFs.bed `
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/SMC5.wig top_by_RNAseq_AltERFs.bed middle_by_RNAseq_AltERFs.bed bottom_by_RNAseq_AltERFs.bed `
+
+
+* R code for boxplots
+> data<-read.delim("RPA_BRCA1_SMC5_on_AltERFs.mapwig.sort", header=F)
+> top<-data[1:409,4:7]
+> middle<-data[410:819,4:7]
+> bottom<-data[819:nrow(data),4:7]
+> top[[2]]<-NULL
+> bottom[[2]]<-NULL
+> middle[[2]]<-NULL
+> l<-list(data.frame(RPA=top$RPA, BRCA1=top$BRCA1, SMC5=top$SMC5, group="top"), data.frame(RPA=middle$RPA, BRCA1=middle$BRCA1, SMC5=middle$SMC5, group="middle"), data.frame(RPA=bottom$RPA, BRCA1=bottom$BRCA1, SMC5=bottom$SMC5, group="bottom"))
+Error in data.frame(RPA = top$RPA, BRCA1 = top$BRCA1, SMC5 = top$SMC5,  : 
+  arguments imply differing number of rows: 0, 1
+> colnames(top)<-c("RPA", "BRCA1", "SMC5")
+> colnames(middle)<-c("RPA", "BRCA1", "SMC5")
+> colnames(bottom)<-c("RPA", "BRCA1", "SMC5")
+> l<-list(data.frame(RPA=top$RPA, BRCA1=top$BRCA1, SMC5=top$SMC5, group="top"), data.frame(RPA=middle$RPA, BRCA1=middle$BRCA1, SMC5=middle$SMC5, group="middle"), data.frame(RPA=bottom$RPA, BRCA1=bottom$BRCA1, SMC5=bottom$SMC5, group="bottom"))
+> l.m<-melt(l)
+Using group as id variables
+Using group as id variables
+Using group as id variables
+> png("ranked_boxplots_AltERFs.png")
+> ggplot(l.m, aes(variable,value,fill=group)) + geom_boxplot()
+> dev.off()
+> png("ranked_boxplots_AltERFs.png")
+> ggplot(l.m, aes(variable,value,fill=group)) + geom_boxplot() + coord_cartesian(ylim=c(0,1))
+> 
+> dev.off()
+
+* rank by RNAseq
+
+* testing that the RNAseq is as expected on these files:
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/RNAseq/HU_merge.wig top_by_RNAseq_AltERFs.bed middle_by_RNAseq_AltERFs.bed bottom_by_RNAseq_AltERFs.bed `
+
+* mapping RNAseq to ranked-by-RPA/BRCA1/SMC5 ERFs
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/RNAseq/HU_merge.wig ../top_Alt_ERFs.bed ../middle_Alt_ERFs.bed ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | head -n 206 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > top_by_RNAseq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | tail -n 206 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > bottom_by_RNAseq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | head -n 413 | tail -n 207 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > middle_by_RNAseq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/RPA.wig top_by_RNAseq_orig_erfs.bed middle_by_RNAseq_orig_erfs.bed bottom_by_RNAseq_orig_erfs.bed `
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/BRCA1.wig top_by_RNAseq_orig_erfs.bed middle_by_RNAseq_orig_erfs.bed bottom_by_RNAseq_orig_erfs.bed `
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/metaplot/SMC5.wig top_by_RNAseq_orig_erfs.bed middle_by_RNAseq_orig_erfs.bed bottom_by_RNAseq_orig_erfs.bed `
+

@@ -1,0 +1,66 @@
+= Lab Notes 11.3.15 =
+
+== Notes ==
+* what do the corr matrices look like for peaks that DO overlap with origERFs / AltERFs vs those that don't
+* Where in the peak is the correlation strongest? No idea how to answer this question. Metaplot of correlation values? Would there even be a point of aggregate signal that is strongest?
+* make a heatmap where points that are 0 are black
+* Downloaded polII data
+
+`arrajpur@crick:~/polII$ gzip -d GSM594830_ActivatedBCell_PolII.bedGraph.gz `
+* rerunning origERFs SMC5 because I overwrote them. How to make all 0's to black, and maintain colorscheme otherwise in heatmap:
+
+`mat[mat == 0] <- NA`
+
+`heatmap.2(mat, main="erfs_hotspots_strand_processed.bed sort=all", density.info="histogram", trace="none", col=my_palette, breaks=col_breaks, dendrogram="none", Rowv="NA", Colv="NA", scale="none", denscol="black", labRow=FALSE, labCol=FALSE, na.color="black")`
+
+`arrajpur@crick:~/processing/heatmap/erfs$ heatmap.sh 100 1 1000 ../../metaplot/SMC5.wig erfs_hotspots_strand_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/erfs$ heatmap.sh 100 1 1000 ../../metaplot/RPA.wig erfs_hotspots_strand_processed.bed `
+
+* wrote quite naive script to print distances between genes:
+`arrajpur@crick:~/polII$ chmod +x distance_between_genes.pl `
+
+`arrajpur@crick:~/polII$ ./distance_between_genes.pl ../processing/yH2AX/metaplot/mm9_clean_genes_TSS6kb.bed > gene_distance.txt`
+ 
+`arrajpur@crick:~/processing/heatmap/erfs$ heatmap.sh 100 1 1000 ../../metaplot/BRCA1.wig erfs_hotspots_strand_processed.bed `
+
+* aaand I made the simple mistake of using the wrong genefile so here is a KNOWN sorted file:
+
+`arrajpur@crick:~/polII$ ./distance_between_genes.pl sort_clean_genes_mm9.bed > gene_distance.txt`
+
+* going to start working with RNAseq--HU only 
+
+`arrajpur@crick:~/polII$ mkdir RNAseq`
+
+`arrajpur@crick:~/polII/RNAseq$ bedgraph_to_wig.pl ~/raw-data/GSE43504/RNAseq/HU_rep1_RNAseq_cov_split_norm.bedGraph > HU_rep1.wig`
+
+`arrajpur@crick:~/polII/RNAseq$ bedgraph_to_wig.pl ~/raw-data/GSE43504/RNAseq/HU_rep2_RNAseq_cov_split_norm.bedGraph > HU_rep2.wig`
+
+* HU rep1 RNAseq metaplot
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 HU_rep1.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+`arrajpur@crick:~/polII/RNAseq$ mv metaplot_outfile.* HU_rep1`
+
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 HU_rep2.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+* running again with both altERFs and origERFs
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 HU_rep2.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs`
+
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 HU_rep1.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs`
+
+* merging RNAseq bam files
+* Done. Running merged file metaplot
+
+`arrajpur@crick:~/polII/RNAseq$ bedgraph_to_wig.pl ~/raw-data/GSE43504/RNAseq/HU_merge_RNAseq_cov_split_norm.bedGraph > HU_merge.wig`
+
+`arrajpur@crick:~/polII/RNAseq$ bedgraph_to_wig.pl ~/raw-data/GSE43504/RNAseq/NT_merge_RNAseq_cov_split_norm.bedGraph > NT_merge.wig`
+
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 HU_merge.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigER`
+
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 40000 NT_merge.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigER`
+
+* trying a bigger smooth--1000
+
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --window 1000 --threadBeds 1 40000 HU_merge.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigER`
+
+* looks cleaner but still same trend
+`arrajpur@crick:~/polII/RNAseq$ srun -p bigmemh ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --window 5000 --threadBeds 1 40000 HU_merge.wig ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs OrigERFs`
+

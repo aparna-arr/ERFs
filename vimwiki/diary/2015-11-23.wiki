@@ -1,0 +1,16 @@
+= Lab Notes 11.23.15 =
+
+== Notes ==
+
+* Okay so what to do about the AltERFs blacklist problem:
+* I get to repeat all analysis yay!
+* This sucks
+* First do a diff against the supposedly blacklist-free AltERFs. Then write a bash script to do all the analysis for me
+* said bash script should launch a bunch of screened sruns for maximum parallelization
+* Also make a ton of metaplots with this script
+* figure out how to save all these plots in a multi-page pdf
+* use `print(ggplot(...))` to make it work
+* `height=5 width=25` appears to work well
+arrajpur@crick:~/processing/stats$ mkdir resplit
+arrajpur@crick:~/processing/stats$ mv divide.sh resplit/
+

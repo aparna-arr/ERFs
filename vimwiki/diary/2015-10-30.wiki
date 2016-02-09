@@ -1,0 +1,72 @@
+= Lab Notes 10.30.15 =
+
+== Notes ==
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ mv *10kb.* yH2AX/53BP1_2/`
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ../heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand ../heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand`
+
+* datasets
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE48514
+
+pol2 spleen:
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21773
+
+activated b cell polII (they say they did phospho-pol2 too? but not in GEO? they have SPT which is transcription elongation TF)
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE24178
+
+A ton of small RNA datasets:
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21630
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig ../heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand ../heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand`
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand`
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand`
+
+* going to try and see what happens when I zoom out on the yH2AX plots on broad peaks
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 40000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand RPA`
+
+* broadpeak looks terrible even with an 80k zoom (really need a simulation ... ) (53BP1)
+
+* going to set up the simulations ... 53BP1_1 53BP1_2 AIDtr_1 AIDtr_2 53BP1_RPA AIDtr_RPA for wigs
+* 53BP1_narrow, 53BP1_broad, genes
+* AIDtr_narrow, AIDtr_broad, genes
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ for ((i=0;i<10000;i++)) do bedtools shuffle -excl ~/gaps_mm9.gtf -chrom -g ~/processing/binning/mm9.chrom -i ~/processing/heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed > 53BP1_peaksplit/shuffle_$i.bed ; done`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ for ((i=0;i<10000;i++)) do bedtools shuffle -excl ~/gaps_mm9.gtf -chrom -g ~/processing/binning/mm9.chrom -i ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand > 53BP1_broadpeak/shuffle_$i.bed ; done`
+
+* get to redo everything because not sorted--wait but I'm going to combine later, sort then.
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ for ((i=0;i<10000;i++)) do bedtools shuffle -excl ~/gaps_mm9.gtf -chrom -g ~/processing/binning/mm9.chrom -i ~/processing/heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand > 53BP1_peaksplit/shuffle_$i.bed ; done`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ for ((i=0;i<10000;i++)) do bedtools shuffle -excl ~/gaps_mm9.gtf -chrom -g ~/processing/binning/mm9.chrom -i ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand > 53BP1_AIDtr_broadpeak/shuffle_$i.bed ; done`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ for ((i=0;i<10000;i++)) do bedtools shuffle -excl ~/gaps_mm9.gtf -chrom -g ~/processing/binning/mm9.chrom -i ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand > 53BP1_AIDtr_peaksplit/shuffle_$i.bed ; done`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ cat 53BP1_peaksplit/* | sort -k 1,1 -k 2,2n > 53BP1_peaksplit.combo`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ cat 53BP1_broadpeak/* | sort -k 1,1 -k 2,2n > 53BP1_broadpeak.combo`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ cat 53BP1_AIDtr_broadpeak/* | sort -k 1,1 -k 2,2n > 53BP1_AIDtr_broadpeak.combo`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim/beds$ cat 53BP1_AIDtr_peaksplit/* | sort -k 1,1 -k 2,2n > 53BP1_AIDtr_peaksplit.combo`
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim$ mv beds/ ../
+
+* skipping genes for now
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_1_sim$ srun -p bigmeml --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ../beds/53BP1_peaksplit.combo ../beds/53BP1_broadpeak.combo peaksplit broadpeak `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_AIDtr_1_sim$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ../beds/53BP1_AIDtr_peaksplit.combo ../beds/53BP1_AIDtr_broadpeak.combo peaksplit broadpeak`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_AIDtr_2_sim$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ../beds/53BP1_AIDtr_peaksplit.combo ../beds/53BP1_AIDtr_broadpeak.combo peaksplit broadpeak`
+
+* note: do not use --exclusive or else job gets terminated when new job tries to come
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_2_sim$ srun -p bigmeml --cpus-arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_RPA_sim$ srun -p bigmeml --cpuarrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_2_sim$ srun -p bigmeml --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig ../beds/53BP1_peaksplit.combo ../beds/53BP1_broadpeak.combo peaksplit broadpeak`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_2_sim$ srun -p bigmeml --cpus-arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_RPA_sim$ srun -p bigmeml --cpuarrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_2_sim$ srun -p bigmeml --cpus-arrajpur@crick:~/processing/yH2AX/metaplot/threaded/sims/53BP1_RPA_sim$ srun -p bigmeml --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig ../beds/53BP1_peaksplit.combo ../beds/53BP1_broadpeak.combo peaksplit broadpeak`
+

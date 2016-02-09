@@ -1,0 +1,40 @@
+= Lab Notes 12.30.15 =
+
+== Notes ==
+
+* by the 12th have a v strong basis for analysis on pol2 & clustering
+* Running randomforest for 1 million
+* mapping groseq
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ perl -I /home/mitochi/bin -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -w GSM1524919_AID_naive_merge.negative.wig groseq_mm9_clean.bed.negative.5000 `
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ mv GSM1524919_AID_naive_merge_groseq_mm9_clean.mapwig GSM1524919_AID_naive_merge_groseq_mm9_clean_negative.mapwig `
+
+* all NA, that didn't work
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ bedgraph_to_wig.pl GSM1524919_AID_naive_merge.negative.wig > GROseq_negative.wig`
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ bedgraph_to_wig.pl GSM1524919_AID_naive_merge.positive.wig > GROseq_positive.wig`
+
+`arrajpur@crick:~/processing/pol2_poised$ srun -p bigmemm ./pol2_poised_index.pl groseq/groseq_mm9_clean.bed.negative.5000 groseq/GROseq_negative.wig 10 1500 groseq_negative_poisedness.out`
+
+histogram of states:
+
+
+> d<-melt(chromHMM[,-c(1:3)])
+> chromHMM<-read.delim("chromHMM_to_ERFs_test.bed", header=T, row.names=NULL)
+
+> pdf("states_hist.pdf", height=10, width=10)
+> ggplot(d, aes(x=value)) + facet_wrap(~variable, scales="free") + geom_histogram(binwidth=1)
+ 
+> 
+> dev.off()
+
+`arrajpur@crick:~/processing/stats/LDA$ chmod +x restructure_chromHMM_matrix.pl `
+* chromHMM vs ERFs simulation
+arrajpur@crick:~/processing/pol2_poised/chromHMM$ mkdir sim
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ cp ../chromatin_states_chromHMM_mm9/spleen_cStates_HMM .
+
+arrajpur@crick:~/processing/pol2_poised/chromHMM/sim$ chmod +x make_unique.pl 
+
+have a screen on the shuffle

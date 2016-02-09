@@ -1,0 +1,18 @@
+= Lab Notes 1.14.15 =
+
+== Notes ==
+
+* ERFs tend to have shorter genes than non-ERFs region genes and whole genome
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -u -a mm9_clean_genes.bed -b AltMethodERFs.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'`
+`34769.6`
+`arrajpur@crick:~/processing/stats/beds$ awk '{print $3 - $2}' mm9_clean_genes.bed| awk '{sum+=$1} END {print sum/NR}'`
+`41829.1`
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -v -a mm9_clean_genes.bed -b AltMethodERFs.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'`
+`44501.1`
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -u -a mm9_clean_genes.bed -b AltMethodERFs.bed > mm9_genes_u_ERFs.bed`
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -v -a mm9_clean_genes.bed -b AltMethodERFs.bed > mm9_genes_v_ERFs.bed`
+
+* genes u ERFs have nonsignificant length difference than v ERFs and all genes
+
+`arrajpur@crick:~/processing/pol2_poised/heatmap$ heatmap.sh 100 10 5000 ../groseq/GROseq_positive.wig ../metaplot/positive/groseq_mm9_clean.bed.positive.5000.tmp `
+

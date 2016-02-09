@@ -1,0 +1,294 @@
+= Lab Notes 09.14.15 =
+
+== To Do ==
+* [ ] Finish processing yH2AX 
+* [ ] Decide RPA peaks
+* [ ] Metaplot yH2AX against RPA peaks
+* [ ] Make Statistics powerpoint
+
+== Notes ==
+
+* Metaplot.cpp works! And is extremely fast on yH2AX from the paper even without a cache. Need to modify the R script output and deal with tmp files. Add to github!
+* Ohhh also need to change return statements to absolute exits and handle errors. Currently it segfaults when running with no args because no errors thrown.
+* Check RPA peaks that were used to find ERFs and see if those are decent peaks. Conditions were M2P2 pre 5kb post 300kb min 1kb. So for RPA, do M2P2 then merge 5kb and check those peaks.
+* Dir is `arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh$` 
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3;}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh/RPA_peaksplit_WCE_result.xls | bedtools merge -d 5000 -i - > RPA_peaks_M2P2_5kbmerge.bed`
+
+* They aren't very selective ... remove all < 1kb?
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if ($3 - $2 > 1000) print;}' RPA_peaks_M2P2_5kbmerge.bed > RPA_peaks_M2P2_5kbmerge_1kbmin.bed` 
+`arrajpur@crick:~/processing/yH2AX$ wc -l RPA_peaks_M2P2_5kbmerge*`
+  42464 RPA_peaks_M2P2_5kbmerge_1kbmin.bed
+ 134304 RPA_peaks_M2P2_5kbmerge.bed
+
+* Can't really have big metaplot windows ...
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{print $3 - $2}' RPA_peaks_M2P2_5kbmerge.bed | awk '{sum+=$1} END {print sum/NR}'`
+1547.67
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{print $3 - $2}' RPA_peaks_M2P2_5kbmerge_1kbmin.bed | awk '{sum+=$1} END {print sum/NR}'`
+4689.57
+
+* I can do a bigger merge, or use broadpeak
+* Testing map-peaksplit-to-broadpeak
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | wc -l`
+127839
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'`
+11827.6
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | awk '{if ($3 - $2 > 1000) print;}' | wc -l`
+63420
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | awk '{if ($3 - $2 > 1000) print;}' | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'`
+23478.9
+
+* going to try the last one (map to broadpeak, 1kb min) first
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | awk '{if ($3 - $2 > 1000) print;}' > RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed`
+
+arrajpur@crick:~/processing/yH2AX$ mkdir metaplot
+
+* need to preprocess from the center of the peak
+
+`arrajpur@crick:~/github/allscriptszeus/scripts/metaplot$ cp preprocess_bed_centered.pl ../../../metaplot_Cpp/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ preprocess_bed_centered.pl ../RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed 3000 > RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered`
+
+* RPA peaks are unstranded ...
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered > tmp ; mv tmp RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed`
+
+`arrajpur@crick:~/processing/yH2AX$ bedgraph_to_wig.pl AID_tr.bedgraph`
+`arrajpur@crick:~/processing/yH2AX$ mv AID_tr.bedgraph.wig metaplot/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_tr.bedgraph.wig RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA`
+
+* AIDtr only has chr1???
+* For some reason bedgraph_to_wig only transfered chr1 ... trying again
+* Yes it only does chr1 ...
+* It only checks if span changed ...
+* fixed probably
+
+`arrajpur@crick:~/processing/yH2AX$ mv AID_tr.bedgraph.wig metaplot/`
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_tr.bedgraph.wig RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA`
+
+* modified R script in metaplot code
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* the metaplot ... especially unsmoothed ... is odd. No smooth geom_line() looks like it's not an average--very sharp. Odd ...
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_KO.bedgraph.wig RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R`
+
+* maybe the resolution of the AIDs is really low, hence choppy geom_line(). AID KO looks like AID tr
+
+`arrajpur@crick:~/processing/yH2AX$ bedgraph_to_wig.pl 53BP1_minus_AID_tr_1.bedgraph`
+`arrajpur@crick:~/processing/yH2AX$ bedgraph_to_wig.pl 53BP1_minus_AID_tr_2.bedgraph`
+
+* wow resolution is small ... <300MB for most wigs
+* roughly half of the bedgraphs is bedgraph_to_wig.pl at blame again?
+* Well, number of wig lines appears correct and chrs appear correct too. So looks like just the res of the data
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_1.bedgraph.wig RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_2.bedgraph.wig RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* or it could be my peaks -- check yH2AX from paper against RPA peaks
+* All of the touro yH2AX has the same trends
+
+* testing with yH2AX from paper--wait no can't because that's a different genome ...
+* okay going to get clean genes for mm9 and test this h2ax against that
+
+* scp'd over clean mm9 genes to 
+`arrajpur@crick:~/processing/yH2AX$ ls mm9_clean_genes.bed `
+
+`arrajpur@crick:~/processing/yH2AX$ preprocess_bed.pl mm9_clean_genes.bed 3000 > mm9_clean_genes_TSS6kb.bed` 
+
+`arrajpur@crick:~/processing/yH2AX$ mv mm9_clean_genes_TSS6kb.bed metaplot/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_KO.bedgraph.wig mm9_clean_genes_TSS6kb.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R`
+
+* good! Over clean genes, yH2AX AID KO follows similar patterns as paper, but with lower/choppier resolution. 
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_tr.bedgraph.wig mm9_clean_genes_TSS6kb.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* AID tr doesn't ... odd
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_1.bedgraph.wig mm9_clean_genes_TSS6kb.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* nor this 53BP1, which looks like AID tr
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_2.bedgraph.wig mm9_clean_genes_TSS6kb.bed RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* There are 2 53BP1 AID KO samples, going to process them and see if they have a similar pattern to AID KO (the 53 BP1 samples currently being used are 53BP1 AIDtr)
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_5_sequence.txt 53BP1_minus_AID_KO_1.txt`
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_6_sequence.txt 53BP1_minus_AID_KO_2.txt`
+
+* going to metaplot against ERFs too
+
+`arrajpur@crick:~$ cp AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh/PRE5000_POST300000_MIN1000_M2_P2.txt processing/yH2AX/Alt_Method_ERFs.bed`
+
+* Adding strand + as ERFs are unstranded
+
+`arrajpur@crick:~/processing/yH2AX$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' Alt_Method_ERFs.bed > tmp ; mv tmp Alt_Method_ERFs.bed `
+
+`arrajpur@crick:~/processing/yH2AX$ preprocess_bed_centered.pl Alt_Method_ERFs.bed  3000 > Alt_Method_ERFs_centered.bed `
+
+`arrajpur@crick:~/processing/yH2AX$ mv Alt_Method_ERFs_centered.bed metaplot/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_tr.bedgraph.wig Alt_Method_ERFs_centered.bed ERFs`
+
+* is this a centered metaplot issue? AIDtr on ERFs has the same profile as AIDtr on RPA, but much higher
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot_outfile.* AID_tr_AltMethodERFs/`
+`arrajpur@crick:~/processing/yH2AX/metaplot$ mkdir AID_KO_AltMethodsERFs`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 AID_KO.bedgraph.wig Alt_Method_ERFs_centered.bed ERFs`
+
+* And now AID KO has the same profile too ...
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot_outfile.* AID_KO_AltMethodsERFs/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_1.bedgraph.wig Alt_Method_ERFs_centered.bed ERFs`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot_outfile.* 53BP1_1_AltMethodsERFs/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 53BP1_minus_AID_tr_2.bedgraph.wig Alt_Method_ERFs_centered.bed ERFs`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R `
+
+* trimming 53BP1 AID KO 1 (should I be merging replicates for the 53BP1 stuff?)
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AID_KO_1.txt > 53BP1_minus_AID_KO_1.txt.trim`
+
+* readcount goes to about half after trimminhg and no adaptors appear to be present ... appears to be trimming only on quality score
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AID_KO_2.txt > 53BP1_minus_AID_KO_2.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ makebatch.pl mapKO cmd.txt . 53BP1_minus_AID_KO_1.txt.trim 53BP1_minus_AID_KO_2.txt.trim`
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ~/processing/sam/53BP1_minus_AID_KO_1.txt.trim.sam > 53BP1_minus_AID_KO_1.bedgraph`
+
+* AID KO are the wrong files, but finishing processing anyway. Files needed are:
+	- 53BP1 -/-
+	- 53BP1 -/- AIDtr
+
+* So files will be:
+	- 31K (_53BP1-/-_) (110304)
+	- 33H (_53BP1-/-_)
+	- 33I (_53BP1-/- AIDtr_) *processed*
+	- 33L (_53BP1-/- AIDtr_) *processed*
+
+* The RPA files will be:
+	- 25G ? (_53BP1-/-_)
+	- 31J (_53BP1-/-_) (110304)
+	- 33F (_53BP1-/- AIDtr_)
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ~/processing/sam/53BP1_minus_AID_KO_2.txt.trim.sam > 53BP1_minus_AID_KO_2.bedgraph`
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110304-jackie/fq36/s_6_sequence.txt 53BP1_minus_1.txt`
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_3_sequence.txt 53BP1_minus_2.txt`
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110304-jackie/fq36/s_5_sequence.txt 53BP1_minus_RPA.txt`
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_1_sequence.txt 53BP1_minus_AIDtr_RPA.txt`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_1.txt > 53BP1_minus_1.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_2.txt > 53BP1_minus_2.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_RPA.txt > 53BP1_minus_RPA.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AIDtr_RPA.txt > 53BP1_minus_AIDtr_RPA.txt.trim`
+
+* added simple exception (exit program) to metaplot
+
+`arrajpur@crick:~/processing/metaplot$ bedgraph_to_wig.pl ~/AltMethodErfs/DESeq_norm/RPA_merge_10bp_bin.bedgraph > RPA.wig`
+
+`arrajpur@crick:~/processing/metaplot$ bedgraph_to_wig.pl ~/AltMethodErfs/DESeq_norm/SMC5_merge_10bp_bin.bedgraph > SMC5.wig`
+
+`arrajpur@crick:~/processing/metaplot$ bedgraph_to_wig.pl ~/AltMethodErfs/DESeq_norm/BRCA1_merge_10bp_bin.bedgraph > BRCA1.wig`
+
+`arrajpur@crick:~/processing/metaplot$ metaplot 6000 RPA.wig ~/processing/yH2AX/metaplot/Alt_Method_ERFs_centered.bed ERFs`
+
+`arrajpur@crick:~/processing/metaplot$ R --no-save < metaplot_outfile.R `
+
+`arrajpur@crick:~/processing/metaplot$ metaplot 6000 SMC5.wig ~/processing/yH2AX/metaplot/Alt_Method_ERFs_centered.bed ERFs`
+
+`arrajpur@crick:~/processing/metaplot$ R --no-save < metaplot_outfile.R`
+
+* try shifting the X-axis and seeing if the bp with suddenly low values correspondingly shift
+
+arrajpur@crick:~/processing/metaplot$ cp ../yH2AX/metaplot/Alt_Method_ERFs_centered.bed .
+arrajpur@crick:~/processing/metaplot$ awk '{print $1 "\t" $2 + 100 "\t" $3 +100 "\t" $4}' Alt_Method_ERFs_centered.bed > Alt_Method_ERFs_centered_shifted100bp.bed 
+
+arrajpur@crick:~/processing/metaplot$ metaplot 6000 RPA.wig Alt_Method_ERFs_centered_shifted100bp.bed ERFs 
+
+* Yes it s maintained. Suddenly low values are shifting correctly.
+* So it's either a deep code problem or the data itself.
+* need to check how many counts per bp bin
+* suddenlylow and suddenlyhigh both have lower counts than the surrounding bp 50 - 130 seems to be the range overall.
+* Running TSS to see what the count number is there
+
+`arrajpur@crick:~/processing/metaplot$ metaplot 6000 RPA.wig ~/processing/yH2AX/metaplot/mm9_clean_genes_TSS6kb.bed ERFs`
+
+* TSS counts are in the 2k's -> still spiky but from 2-2.4 not 1-50. (RPA.wig)
+* Should add bed preprocessing to metaplot script.
+	- but this means validation first then preprocessing ... will not be fun.
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ../sam/53BP1_minus_1.txt.trim.sam > 53BP1_minus_1.bedgraph`
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ../sam/53BP1_minus_2.txt.trim.sam > 53BP1_minus_2.bedgraph`
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ../sam/53BP1_minus_AIDtr_RPA.txt.trim.sam > 53BP1_AID_tr_RPA.bedgraph`
+
+`arrajpur@crick:~/processing/yH2AX$ read_depth.pl 10 1 ../sam/53BP1_minus_RPA.txt.trim.sam > 53BP1_minus_RPA.bedgraph`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ bedgraph_to_wig.pl ../53BP1_minus_1.bedgraph > 53BP1_minus_1.wig`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ bedgraph_to_wig.pl ../53BP1_minus_2.bedgraph > 53BP1_minus_2.wig`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ bedgraph_to_wig.pl ../53BP1_AID_tr_RPA.bedgraph > 53BP1_minus_AIDtr_RPA.wig`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ bedgraph_to_wig.pl ../53BP1_minus_RPA.bedgraph > 53BP1_minus_RPA.wig`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 wigs/53BP1_minus_1.wig mm9_clean_genes_TSS6kb.bed cleangenes`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot 6000 wigs/53BP1_minus_2.wig mm9_clean_genes_TSS6kb.bed cleangenes`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot_outfile.* 53BP1_minus_2/`
+ 
+
+
+
+
+
+
+	
+ 
+
+
+

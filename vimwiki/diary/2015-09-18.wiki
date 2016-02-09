@@ -1,0 +1,13 @@
+= Lab Notes 09.18.15 =
+
+== Notes ==
+* Maybe it is better to have span=100, metaplots are a bit choppy and we divide by count anyway. 
+* BRCA1 RPA and SMC5 all have the same pattern over ERFs, which is 2 major peaks of signal +-2.5kb and low elsewhere
+* Going to make metaplots with span=100
+
+arrajpur@crick:~/processing/metaplot$ sed -i 's/span=1/span=100/g' RPA.wig.tmp 
+arrajpur@crick:~/processing/metaplot$ sed -i 's/span=1/span=100/g' SMC5.wig.tmp 
+arrajpur@crick:~/processing/metaplot$ sed -i 's/span=1/span=100/g' BRCA1.wig.tmp 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ srun -p bigmemm metaplot --readSplitBed bed 10000 ../../BRCA1.wig.tmp ../../AltMethodERFs.bed.tmp ERFs
+* running metaplot for rpa and smc5 too
+* adding monte carlo wig simulation to metaplot

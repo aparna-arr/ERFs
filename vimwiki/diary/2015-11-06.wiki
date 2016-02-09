@@ -1,0 +1,66 @@
+= Lab Notes 11.6.15 =
+
+== Notes ==
+`arrajpur@crick:~/processing/stats/beds$ ls`
+`AltMethodERFs.bed.blacklistrm.1kbmin  middle_by_ChipSeq_orig_erfs.bed`
+`bottom_by_ChipSeq_AltERFs.bed         middle_by_RNAseq_AltERFs.bed`
+`bottom_by_ChipSeq_orig_erfs.bed       middle_by_RNAseq_orig_erfs.bed`
+`bottom_by_RNAseq_AltERFs.bed          top_by_ChipSeq_AltERFs.bed`
+`bottom_by_RNAseq_orig_erfs.bed        top_by_ChipSeq_orig_erfs.bed`
+`erfs_hotspots.bed                     top_by_RNAseq_AltERFs.bed`
+`middle_by_ChipSeq_AltERFs.bed         top_by_RNAseq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -v -a AltMethodERFs.bed.blacklistrm.1kbmin -b erfs_hotspots.bed > AltMethodERFs_unique.bed`
+
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -u -a AltMethodERFs.bed.blacklistrm.1kbmin -b erfs_hotspots.bed > AltMethodERFs_common.bed`
+
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -u -b AltMethodERFs.bed.blacklistrm.1kbmin -a erfs_hotspots.bed > erfs_hotspots_common.bed`
+
+`arrajpur@crick:~/processing/stats/beds$ bedtools intersect -v -b AltMethodERFs.bed.blacklistrm.1kbmin -a erfs_hotspots.bed > erfs_hotspots_unique.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_erfs_hotspots.mapwig | head -n 206 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/top_by_polII_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_erfs_hotspots.mapwig | tail -n 206 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/bottom_by_polII_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_erfs_hotspots.mapwig | head -n 413 | tail -n 207 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/middle_by_polII_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_AltMethodERFs.mapwig | head -n 409 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/top_by_polII_AltMethodsERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_AltMethodERFs.mapwig | tail -n 409 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/bottom_by_polII_AltMethodsERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr polII_AltMethodERFs.mapwig | head -n 819 | tail -n 410 | sort -k 1,1 -k 2,2n | cut -f 1,2,3 > beds/middle_by_polII_AltMethodsERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ mkdir polII_map`
+
+`arrajpur@crick:~/processing/stats$ mkdir BRCA1_map`
+
+`arrajpur@crick:~/processing/stats$ mkdir RPA_map`
+
+`arrajpur@crick:~/processing/stats$ mkdir SMC5_map`
+
+`arrajpur@crick:~/processing/stats$ mkdir RNAseq_map`
+
+`arrajpur@crick:~/processing/stats/polII_map$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/polII/polII.wig ../beds/*`
+* CTRL-C'd ... forgot to split by chipseq into 6 for alterfs--nevermind I'll do them later after I remap
+* Running above command
+
+`arrajpur@crick:~/processing/stats/BRCA1_map$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/processing/metaplot/BRCA1.wig ../beds/*`
+
+`arrajpur@crick:~/processing/stats/RPA_map$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/processing/metaplot/RPA.wig ../beds/*`
+
+`arrajpur@crick:~/processing/stats/SMC5_map$ srun -p bigmemm perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/processing/metaplot/SMC5.wig ../beds/*`
+
+`arrajpur@crick:~/processing/stats/RNAseq_map$ srun -p bigmemm perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig ../beds/*`
+
+* H3K36Me3 dataset:
+`https://www.encodeproject.org/experiments/ENCSR000CFY/`
+* CTCF
+`http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE44637`
+* possible H3K4me3 and H3K27me3:
+`http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61608`
+* ENCODE H3K27me3 and H3K36me3:
+`https://genome.ucsc.edu/ENCODE/dataSummaryMouse.html`
+* Bunch of B-cell:
+`http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE60005`
+* other weird histones B cell:
+`http://www.ncbi.nlm.nih.gov/gds/?term=GSE60103[ACCN]%20AND%20gsm[ETYP]`

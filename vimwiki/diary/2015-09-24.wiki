@@ -1,0 +1,14 @@
+= Lab Notes 09.24.15 =
+
+== Notes ==
+* mapwigtobed runs finished
+* simulation is still running ... probably need to rewrite some of metaplot so it is more efficient / does threading
+
+arrajpur@crick:~/github/metaplot_Cpp$ mkdir threading
+
+* Pushed VERSION 0.2 of metaplot
+* threading is going to be intense
+
+arrajpur@crick:~/github/metaplot_Cpp/threading$ touch UserOptsThread.cpp UserOptsThread.h ChromosomeThread.h ChromosomeThread.cpp MetaplotThread.cpp MetaplotThread.h MetaplotRegionThread.cpp MetaplotRegionThread.h
+
+

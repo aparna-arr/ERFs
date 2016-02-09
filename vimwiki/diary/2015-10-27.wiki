@@ -1,0 +1,27 @@
+= Lab Notes 10.27.15 =
+
+== Notes ==
+
+`arrajpur@crick:~/processing/heatmap$ mv heatmap.sh ~/github/utilities/`
+`arrajpur@crick:~/processing/heatmap$ mv heatmap.R ~/github/utilities/`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ../../../yH2AX/metaplot/wigs/53BP1_minus_1.wig 53BP1_AIDtr_RPA_M2P2_broadpeakmap_processed.bed 53BP1_AIDtr_RPA_M2P2_peaksplit_processed.bed 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/1kb$ heatmap.sh 10 1 100 ../../../yH2AX/metaplot/wigs/53BP1_minus_1.wig 53BP1_AIDtr_RPA_M2P2_broadpeakmap_processed_1k.bed 53BP1_AIDtr_RPA_M2P2_peaksplit_processed_1k.bed 53BP1_RPA_broadpeakmap_processed_1k.bed 53BP1_RPA_M2P2_peaksplit_processed_1k.bed plus_mm9_clean_genes_processed_1kb.bed minus_mm9_clean_genes_processed_1kb.bed`
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../yH2AX/metaplot/wigs/53BP1_minus_1.wig ../heatmap/rpa/53BP1_RPA_peaksplit_M2P2.bed `
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../yH2AX/metaplot/wigs/53BP1_minus_2.wig ../heatmap/rpa/53BP1_RPA_peaksplit_M2P2.bed `
+ 
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed `
+
+`arrajpur@crick:~/processing/corr$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ../heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed `
+
+`arrajpur@crick:~/processing/corr$ ../../remove_zeros.pl 53BP1_minus_AID_tr_1_53BP1_AIDtr_RPA_M2P2_peaksplit.mapwig 53BP1_minus_AID_tr_2_53BP1_AIDtr_RPA_M2P2_peaksplit.mapwig 0`
+`arrajpur@crick:~/processing/corr$ mv combined_map.bed 53BP1_AIDtr_RPApeaks_combined.bed`
+`arrajpur@crick:~/processing/corr$ ../../remove_zeros.pl 53BP1_minus_1_53BP1_RPA_peaksplit_M2P2.mapwig 53BP1_minus_2_53BP1_RPA_peaksplit_M2P2.mapwig 0`
+`arrajpur@crick:~/processing/corr$ mv combined_map.bed 53BP1_RPApeaks_combined.bed`
+ 
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ../../../yH2AX/metaplot/wigs/53BP1_minus_2.wig 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed `
+
+

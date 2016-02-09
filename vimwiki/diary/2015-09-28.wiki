@@ -1,0 +1,4 @@
+= Lab Notes 09.28.15 =
+
+== Notes ==
+* continuing rewriting threaded metaplot

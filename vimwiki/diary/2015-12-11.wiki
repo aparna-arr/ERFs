@@ -1,0 +1,9 @@
+= Lab Notes 12.11.15 =
+
+== Notes ==
+
+* Continuing with ChromHMM analysis: still need pol2 and would prefer datasets from the same source: ENCODE
+* however, ENCODE only has CD19+ and CD43- B cells and neither of them are stimulated/active. Is this good enough
+* Needed histones: h3k4me1 h3k4me3 h3k36me3 h3k27me3 h3k27ac ctcf pol2
+* GSE 60005 has all (with sras) except ctcf pol2 k36me3
+* going to download SRAs and then map to  

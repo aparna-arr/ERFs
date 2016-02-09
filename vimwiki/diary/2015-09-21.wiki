@@ -1,0 +1,68 @@
+= Lab Notes 09.21.15 =
+
+== Notes ==
+
+* Running BRCA1 SMC5 RPA metaplots with metaplotOLD executable
+* The yH2AX are all span=1 so need to rerun those with better notes. 
+* the smc5, rpa, brca1 span=WINDOW runs are all finished in ~/processing/metaplot/ERFs
+* Now, going to test the monte carlo option
+
+`arrajpur@crick:~/processing/metaplot/monteCarlo/brca1/beds$ for ((i=0;i<100;i++)); do bedtools shuffle -excl ~/mm9_gaps.txt -chrom -i ../../../AltMethodERFs.bed -g ~/processing/binning/mm9.chrom > shuffle_$i.bed ; done`
+
+* there appears to be a segfault bug in new metaplot ...
+* testing with SMC5
+
+`arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ srun -p bigmemm metaplot --readSplitBed bed --preprocessWig 10000 ../../SMC5.wig ../../AltMethodERFs.bed.tmp ERFs`
+
+* need to finish making RPA peaks so when metaplot is debugged all of them can be run
+
+`arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_RPA$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' MAnorm_result.xls | bedtools intersect -u -a ../../RPA_broadpeak/53BP1_minus_RPA/53BP1_minus_RPA_broad_peak_unsupervised/53BP1_minus_RPA_broad_peak_unsupervised.bed -b - | awk '{if ($3 - $2 > 1000) print $1 "\t" $2 "\t" $3}'  > 53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed`
+
+`arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_AIDtr_RPA$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' MAnorm_result.xls | bedtools intersect -u -a ../../RPA_broadpeak/53BP1_minus_AID_tr_RPA/53BP1_minus_AID_tr_RPA_broad_peak_unsupervised/53BP1_minus_AID_tr_RPA_broad_peak_unsupervised.bed -b - | awk '{if ($3 - $2 > 1000) print $1 "\t" $2 "\t" $3}'  > 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed`
+
+`arrajpur@crick:~/processing/yH2AX$ rm RPA_peaks*`
+
+`arrajpur@crick:~/processing/yH2AX$ cp MAnorm/53BP1_RPA/53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed .`
+
+`arrajpur@crick:~/processing/yH2AX$ cp MAnorm/53BP1_AIDtr_RPA/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed .`
+
+* fixed segfault error probably so now going to start all the metaplot runs
+* monte carlo is already running (restarted)
+
+arrajpur@crick:~/processing/yH2AX/metaplot/wigs$ sed -i 's/span=1/span=100/g' 53BP1_minus_1.wig.tmp 
+arrajpur@crick:~/processing/yH2AX/metaplot/wigs$ screen -S sed2 sed -i 's/span=1/span=100/g' 53BP1_minus_AID_tr_2.bedgraph.wig.tmp 
+arrajpur@crick:~/processing/yH2AX/metaplot/wigs$ screen -S sed sed -i 's/span=1/span=100/g' 53BP1_minus_2.wig.tmp 
+arrajpur@crick:~/processing/yH2AX/metaplot/wigs$ screen -S sed2 sed -i 's/span=1/span=100/g' 53BP1_minus_AID_tr_1.bedgraph.wig.tmp 
+arrajpur@crick:~/processing/metaplot/monteCarlo/rpa$ cp -r ../brca1/splitbed/ ../brca1/beds/ .
+
+* started rpa and smc5 monte carlo runs too with the same bed shuffle set
+* RPA-peak-center only for yH2AX
+* span100 is already done for BRCA1 SMC5 RPA for ERFs
+
+arrajpur@crick:~/processing/metaplot/genes/brca1$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/brca1_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../BRCA1.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+
+arrajpur@crick:~/processing/metaplot/genes/rpa$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../RPA.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+
+arrajpur@crick:~/processing/metaplot/genes/smc5$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/smc5_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../SMC5.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+
+* RPA peak problem:
+arrajpur@crick:~/processing/yH2AX$ wc -l *1kbmin.bed
+   59 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed
+ 1509 53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed
+
+* adding a 5kb premerge before the map does nothing
+* maybe cause they're broadpeak it's okay cause they will be giant?
+
+arrajpur@crick:~/processing/yH2AX$ for f in *1kbmin.bed ; do echo $f ; awk '{print $3 - $2}' $f | awk '{sum+=$1} END {print sum/NR}'; done
+53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed
+30353.4
+53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed
+35121.1
+
+* pretty big. Run these sets then consider a new set. Later: genome browser the RPA broadpeak + split and try and see why so few peaks
+
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot0$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_1.wig.tmp ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot1$ srun -p bigmemm metaplot --preproarrajpur@crick:~/processing/yH2AX/metaplot/metaplot1$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_2.wig.tmp ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot2$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_AID_tr_1.bedgraph.wig.tmp ../../53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot3$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_AID_tr_2.bedgraph.wig.tmp ../../53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA

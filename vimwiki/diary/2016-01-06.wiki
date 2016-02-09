@@ -1,0 +1,124 @@
+= Lab Notes 1.06.16 =
+
+== Notes ==
+
+* shuffle is going to take forever ... lots of people waiting for resources on crick
+
+`> het<-read.delim("13_Heterochrom_alterfs.out", header=F)`
+`> 26941958/median(het$V1)`
+`[1] 0.1984451`
+`> median(het$V1)/26941958`
+`[1] 5.039178`
+
+* sim is enriched over real for 13_Het at ~5fold! So 2fold is a reasonable limit to put on both ends.
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ srun -p bigmemm --cpus-per-task=10 ~/github/metaplot_Cpp/threading/metaplot-thread-avg --threadChroms --threadBeds --preprocessBed 0 --readAllBedsInDir negative/ 5000 GROseq_negative.wig`
+
+* weird: order of curves on GRO-seq - is different than + with clusters.
++
+genes u clus2
+genes u allerfs
+genes u clus3
+genes u clus1
+allgenes
+genes v clus1
+genes v clus2
+genes v clus3
+genes v allerfs
+
+-
+
+genes u clus2
+genes u clus3
+genes u erfs
+genes v clus1
+allgenes
+genes v clus2
+genes v clus3
+genes v allerfs
+genes u clus1
+
+* what's going on with - strand cluster1?
+* it's not a mistake ...
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a negative/groseq_mm9_clean_negative_5000_u_AltERFs_cluster1.bed -b notcorrectformatbeds/ERFs_cluster1.bed | wc -l`
+`364`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a negative/groseq_mm9_clean_negative_5000_v_AltERFs_cluster1.bed -b notcorrectformatbeds/ERFs_cluster1.bed | wc -l`
+`0`
+
+* positive for comparison
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a positive/groseq_mm9_clean_positive_5000_u_AltERFs_cluster1.bed -b notcorrectformatbeds/ERFs_cluster1.bed | wc -l`
+`338`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ bedtools intersect -u -a positive/groseq_mm9_clean_positive_5000_v_AltERFs_cluster1.bed -b notcorrectformatbeds/ERFs_cluster1.bed | wc -l`
+`0`
+
+* checking peak count ... not a problem
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ wc -l negative/groseq_mm9_clean_negative_5000_v_AltERFs_cluster1.bed`
+`7559 negative/groseq_mm9_clean_negative_5000_v_AltERFs_cluster1.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ wc -l negative/groseq_mm9_clean_negative_5000_u_AltERFs_cluster1.bed`
+`364 negative/groseq_mm9_clean_negative_5000_u_AltERFs_cluster1.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ wc -l positive/groseq_mm9_clean_positive_5000_v_AltERFs_cluster1.bed`
+`7508 positive/groseq_mm9_clean_positive_5000_v_AltERFs_cluster1.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/metaplot$ wc -l positive/groseq_mm9_clean_positive_5000_u_AltERFs_cluster1.bed`
+`338 positive/groseq_mm9_clean_positive_5000_u_AltERFs_cluster1.bed`
+
+* making seperate barplots for clusters
+
+`arrajpur@crick:~/processing/pol2_poised$ cp barplot_groseq.R cluster_barplots/`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir poisedness_genes_split_by_cluster`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster1.bed > groseq_neg_poisedness_u_clus1.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster2.bed > groseq_neg_poisedness_u_clus2.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster3.bed > groseq_neg_poisedness_u_clus3.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster1.bed > groseq_neg_poisedness_v_clus1.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster2.bed > groseq_neg_poisedness_v_clus2.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_negative_poisedness.out -b ../../ERFs_cluster3.bed > groseq_neg_poisedness_v_clus3.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster1.bed > groseq_pos_poisedness_u_clus1.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster2.bed > groseq_pos_poisedness_u_clus2.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -u -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster3.bed > groseq_pos_poisedness_u_clus3.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster3.bed > groseq_pos_poisedness_v_clus3.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster2.bed > groseq_pos_poisedness_v_clus2.bed`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ bedtools intersect -v -a ../../groseq_positive_poisedness.out -b ../../ERFs_cluster1.bed > groseq_pos_poisedness_v_clus1.bed`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ cp ../../groseq_positive_poisedness.out .`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ cp ../groseq_negative_poisedness.out .`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv groseq_negative_poisedness.out poisedness_genes_split_by_cluster/`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_pos_poisedness_u_clus1.bed poisedness_genes_split_by_cluster/groseq_pos_poisedness_v_clus1.bed poisedness_genes_split_by_cluster/groseq_positive_poisedness.out `
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir pos_clus1`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf pos_clus1/`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_pos_poisedness_u_clus2.bed poisedness_genes_split_by_cluster/groseq_pos_poisedness_v_clus2.bed poisedness_genes_split_by_cluster/groseq_positive_poisedness.out `
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir pos_clus2`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir pos_clus3`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf pos_clus2/`
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_pos_poisedness_u_clus3.bed poisedness_genes_split_by_cluster/groseq_pos_poisedness_v_clus3.bed poisedness_genes_split_by_cluster/groseq_positive_poisedness.out `
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf pos_clus3/`
+
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_neg_poisedness_u_clus1.bed poisedness_genes_split_by_cluster/groseq_neg_poisedness_v_clus1.bed poisedness_genes_split_by_cluster/groseq_negative_poisedness.out 
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir neg_clus1
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir neg_clus2
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mkdir neg_clus3
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf neg_clus1/
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_neg_poisedness_u_clus2.bed poisedness_genes_split_by_cluster/groseq_neg_poisedness_v_clus2.bed poisedness_genes_split_by_cluster/groseq_negative_poisedness.out 
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf neg_clus2/
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ Rscript barplot_groseq_clusters.R poisedness_genes_split_by_cluster/groseq_neg_poisedness_u_clus3.bed poisedness_genes_split_by_cluster/groseq_neg_poisedness_v_clus3.bed poisedness_genes_split_by_cluster/groseq_negative_poisedness.out 
+arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ mv *.pdf neg_clus3/
+

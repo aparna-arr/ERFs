@@ -1,0 +1,10 @@
+= Lab Notes 09.10.15 = 
+
+== ToDo ==
+* [ ] Determine RPA peaks
+* [ ] Make statistics ppt
+* [ ] Update graphical lab notebook
+
+== Notes ==
+
+* Working on C++ implementation of metaplot to make it more flexible and robust 

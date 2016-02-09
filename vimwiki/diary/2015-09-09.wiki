@@ -1,0 +1,21 @@
+= Lab Notes 09.09.15 =
+
+== To Do ==
+- [X] Clean up genome browser session
+- [ ] Determine RPA peaks (NOT the same as ERFs)
+- [ ] Update graphical lab notebook
+- [X] Start looking at metaplot script
+- [ ] Make ppt with ERF statistics 
+
+== Notes == 
+
+* I should probably -v -a peaksplit -b blacklist before calling these the final ERFs
+* yH2AX is not very clean but that's expected
+* Corr plots time ... both AID only against each other, both 53BP1 against eachother, etc. Make matrix of corr plots.
+
+`arrajpur@crick:~$ bedtools makewindows -g processing/binning/mm9.chrom -w 10000 | awk '{print $1 "\t" $2 "\t" $3 "\t" NR}' > windows_10k.bed`
+
+* Using Stella's script to count reads instead of htseq-count
+
+`arrajpur@crick:~/processing/yH2AX$ srun -p bigmemm perl -I /home/mitochi/bin/ /home/mitochi/bin/CountSAM2BED.pl ~/windows_10k.bed ../sam/AID_tr.txt.trim.sam`
+

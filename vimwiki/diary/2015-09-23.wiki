@@ -1,0 +1,61 @@
+= Lab Notes 09.23.15 =
+
+== Notes ==
+* screen for 1000 simulations is still running.
+* but RPA peaks for brca1, rpa, smc5 +- 10kb are done
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/rpa$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/RPA_peaks/smc5$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ R --no-save < metaplot_outfile.R 
+
+* and all the yH2AX runs should be done too
+
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_1_genes$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_2_genes$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_AIDtr_1_genes$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_AIDtr_2_genes$ R --no-save < metaplot_outfile.R 
+
+* making metaplot of just Alt ERFs +- 10kb
+
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cp metaplot_outfile.R AltERFs_metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ vim AltERFs_metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cp AltERFs_metaplot_outfile.R ../rpa_metaplot/ 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cp AltERFs_metaplot_outfile.R ../smc5_metaplot/
+
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cut -f 1,2 metaplot_outfile.txt > AltERFs_metaplot_outfile.txt
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cd ../
+arrajpur@crick:~/processing/metaplot/ERFs$ cd rpa_metaplot/
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ cut -f 1,2 metaplot_outfile.txt > AltERFs_metaplot_outfile.txt
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ cd ../
+arrajpur@crick:~/processing/metaplot/ERFs$ cd smc5_metaplot/
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ cut -f 1,2 metaplot_outfile.txt > AltERFs_metaplot_outfile.txt
+
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ R --no-save < AltERFs_metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ R --no-save < AltERFs_metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ R --no-save < AltERFs_metaplot_outfile.R 
+
+* need to check Igh locus for yH2AX, so:
+arrajpur@crick:~/processing/yH2AX$ grep chr12 53BP1_minus_1.bedgraph > chr12_53BP1_minus_1.bedgraph 
+arrajpur@crick:~/processing/yH2AX$ grep chr12 53BP1_minus_2.bedgraph > chr12_53BP1_minus_2.bedgraph 
+arrajpur@crick:~/processing/yH2AX$ grep chr12 53BP1_minus_AID_tr_1.bedgraph > chr12_53BP1_minus_AID_tr_1.bedgraph 
+arrajpur@crick:~/processing/yH2AX$ grep chr12 53BP1_minus_AID_tr_2.bedgraph > chr12_53BP1_minus_AID_tr_2.bedgraph 
+
+* need to continue with mapping yH2AX to 10kb windows for corr plot. Genome browser: corr looks bad
+
+arrajpur@crick:~$ screen -S 53BP1_AIDtr_2_map srun -p bigmemm perl -I /home/mitochi/bin /home/mitochi/bin/map_wig_to_bed_BIG.pl -r cache/ -m -w processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig windows_10k_3col.bed
+arrajpur@crick:~$ screen -S 53BP1_AIDtr_1_map srun -p bigmemm perl -I /home/mitochi/bin /home/mitochi/bin/map_wig_to_bed_BIG.pl -r cache/ -m -w processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig windows_10k_3col.bed
+arrajpur@crick:~$ screen -S 53BP1_2_map srun -p bigmemm perl -I /home/mitochi/bin /home/mitochi/bin/map_wig_to_bed_BIG.pl -r cache/ -m -w processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig windows_10k_3col.bed
+
+* working on heatmap
+* testing:
+arrajpur@crick:~/processing/heatmap$ heatmap ../metaplot/BRCA1.wig ../metaplot/AltMethodERFs.bed.tmp 
+* And it immediately segfaults at calc()! -> addSignal() -> fixed
+arrajpur@crick:~/processing/heatmap$ mkdir nosmoothout
+arrajpur@crick:~/processing/heatmap$ mv heatmap_outfile.txt nosmoothout/
+* going to run over smoothed wig now
+arrajpur@crick:~/processing/heatmap$ screen -S heatmap srun -p bigmemm heatmap ../metaplot/BRCA1_span100.wig.tmp ../metaplot/AltMethodERFs.bed.tmp 
+* ..why is BRCA1_span100.wig.tmp empty?
+* they're all empty ...
+* but the non-span100.tmp are not (and are also span100)
+arrajpur@crick:~/processing/heatmap$ screen -S heatmap srun -p bigmemm heatmap ../metaplot/BRCA1.wig.tmp ../metaplot/AltMethodERFs.bed.tmp 
+

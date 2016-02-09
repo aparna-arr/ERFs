@@ -1,0 +1,24 @@
+= Lab Notes 11.20.15 =
+
+== Notes ==
+
+* continuing to map genes to everything
+* did that, ran all_to_all boxplots
+* going to make very confusing metaplot
+
+arrajpur@crick:~/processing/metaplot/allbeds$ mkdir beds
+arrajpur@crick:~/processing/metaplot/allbeds$ cp ../../stats/beds/*.bed beds/
+somehow AltERFs still overlaps with blacklist ... ran blacklistrm agan and now it doesnt:
+
+arrajpur@crick:~/processing/metaplot/allbeds$ bedtools intersect -a beds/AltMethodERFs.bed -b ~/data/mm9_blacklist.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+7511.33
+arrajpur@crick:~/processing/metaplot/allbeds$ bedtools intersect -a beds/erfs_hotspots.bed -b ~/data/mm9_blacklist.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+1952.48
+
+arrajpur@crick:~/processing/metaplot/allbeds/beds$ bedtools intersect -u -a AltMethodERFs.bed.blacklistrm.1kbmin -b ~/data/mm9_blacklist.bed | wc -l
+0
+
+arrajpur@crick:~/processing/metaplot/allbeds$ blacklist.sh beds/AltMethodERFs.bed 1
+
+arrajpur@crick:~/processing/metaplot/allbeds/beds$ blacklist.sh erfs_hotspots.bed 1
+

@@ -1,0 +1,1163 @@
+############
+## 8.21.15 ##
+#############
+
+# Start of new cli notes: previous notes in vimoutliner file notes.otl
+# fastq-mcf outfiles in form .txt.trim
+# now to run bowtie2 on everything
+# copying over batch file and modifying
+# wrote makebatch.pl to produce batch files to run in parallel
+arrajpur@crick:~/raw-data/Touro_rep2_files$ ./makebatch.pl map cmdfile.txt . BRCA1_HU_Touro_rep2_sequence.txt.trim BRCA1_NT_Touro_rep2_sequence.txt.trim BrdU_HU_Touro_rep2_FASTQ_sequence.txt.trim BrdU_NT_Touro_rep2_FASTQ_sequence.txt.trim RPA_HU_Touro_rep2_sequence.txt.trim RPA_NT_Touro_rep2_sequence.txt.trim SMC5_HU_Touro_rep2_sequence.txt.trim SMC5_NT_Touro_rep2_sequence.txt.trim 
+
+arrajpur@crick:~/raw-data/Touro_rep2_files$ ls map*
+map_0.sh  map_1.sh  map_2.sh  map_3.sh  map_4.sh  map_5.sh  map_6.sh  map_7.sh
+
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_0.sh 
+Submitted batch job 2025
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_1.sh 
+Submitted batch job 2026
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_2.sh 
+Submitted batch job 2027
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_3.sh 
+Submitted batch job 2028
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_4.sh 
+Submitted batch job 2029
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_5.sh 
+Submitted batch job 2030
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_6.sh 
+Submitted batch job 2031
+arrajpur@crick:~/raw-data/Touro_rep2_files$ sbatch -p bigmemm map_7.sh 
+
+# Going to run fastq-mcf on all the Touro initial reps files so when merging time comes they are comparable.
+
+arrajpur@crick:~/raw-data$ mkdir Touro_rep1_files/
+
+rrajpur@crick:~/raw-data/Touro_rep1_files$ ls
+BRCA1_HU_Touro_rep1_sequence.txt  RPA_HU_Touro_rep1_sequence.txt
+BRCA1_NT_Touro_rep1_sequence.txt  RPA_NT_Touro_rep1_sequence.txt
+BRDU_HU_Touro_rep1.fastq          SMC5_HU_Touro_rep1_sequence.txt
+BRDU_NT_Touro_rep1.fastq          SMC5_NT_Touro_rep1_sequence.txt
+
+arrajpur@crick:~/raw-data/Touro_rep1_files$ fastqc *
+
+arrajpur@crick:~/raw-data/Touro_rep1_files$ make_adaptor_file.pl *fastqc/fastqc_data.txt > adaptors.fa
+
+# removing No Hit sequences with vim cmd: 
+:g/No Hit/normal 2dd
+
+# copied over fastq-mcf.sh. Sequence length appears to be 25.
+arrajpur@crick:~/raw-data/Touro_rep1_files$ sbatch -p bigmemm fastq-mcf.sh 
+
+arrajpur@crick:~/raw-data/Touro_rep1_files$ makebatch.pl map cmdfile.txt . BRCA1_HU_Touro_rep1_sequence.txt.trim BRCA1_NT_Touro_rep1_sequence.txt.trim BRDU_HU_Touro_rep1.fastq.trim BRDU_NT_Touro_rep1.fastq.trim RPA_HU_Touro_rep1_sequence.txt.trim RPA_NT_Touro_rep1_sequence.txt.trim SMC5_HU_Touro_rep1_sequence.txt.trim SMC5_NT_Touro_rep1_sequence.txt.trim 
+
+arrajpur@crick:~/raw-data/Touro_rep1_files$ ls map*
+map_0.sh  map_1.sh  map_2.sh  map_3.sh  map_4.sh  map_5.sh  map_6.sh  map_7.sh
+
+arrajpur@crick:~/processing/binning$ for f in ../sam/*Touro_rep2* ; do echo $f; ./read_depth.pl 200 1 $f > $f.bedgraph; done
+
+arrajpur@crick:~/processing/sam$ mv *.bedgraph ../binning/bedgraph/
+
+arrajpur@crick:~/processing/binning$ for f in bedgraph/*trim.sam.bedgraph; do echo $f; ./split_bins.pl $f 10 200 > $f\.bed ; done
+
+arrajpur@crick:~/processing/binning$ for f in ../sam/*Touro_rep1* ; do echo $f; ./read_depth.pl 200 1 $f > $f.bedgraph; done
+
+arrajpur@crick:~/processing/binning$ for f in bedgraph/*rep1*trim.sam.bedgraph; do echo $f; ./split_bins.pl $f 10 200 > $f\.bed ; done
+
+arrajpur@crick:~/processing/binning/sicer/new_touro/rep2$ makebatch.pl sicer600 cmdfile600.txt . RPA_HU_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed RPA_NT_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed BRDU_HU_Touro_rep2.fastq.trim.sam.bedgraph.bed BRDU_NT_Touro_rep2.fastq.trim.sam.bedgraph.bed
+
+arrajpur@crick:~/processing/binning/sicer/new_touro/rep2$ makebatch.pl sicer200 cmdfile200.txt . BRCA1_HU_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed BRCA1_NT_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed SMC5_HU_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed SMC5_NT_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed
+
+arrajpur@crick:~/processing/binning/sicer/new_touro/rep1$ makebatch.pl sicer200 cmdfile200.txt . BRCA1_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed BRCA1_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed SMC5_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed SMC5_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed
+
+arrajpur@crick:~/processing/binning/sicer/new_touro/rep1$ makebatch.pl sicer600 cmdfile600.txt . RPA_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed RPA_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed BRDU_HU_Touro_rep1.fastq.trim.sam.bedgraph.bed BRDU_NT_Touro_rep1.fastq.trim.sam.bedgraph.bed
+
+# BRDU has a weird filename for rep2: redo
+
+# NO sicer overwrites its own outfiles so each shell script needs to be in or have its own outfile.
+
+#############
+## 8.24.15 ##
+#############
+
+# Okay, Touro rep1 100811 is too old
+# Need RP105 treatment
+# No need to continue processing/using NT
+
+# Trying to match GEO datasets with current Touro ones
+
+# BRCA1
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/BRCA1/rep1/SRR648775.fastq 
+80770004 GEO_ChIP_seq/BRCA1/rep1/SRR648775.fastq
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/BRCA1/rep2/SRR648776.fastq 
+121985196 GEO_ChIP_seq/BRCA1/rep2/SRR648776.fastq
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep1_files/BRCA1_HU_Touro_rep1_sequence.txt
+80770004 Touro_rep1_files/BRCA1_HU_Touro_rep1_sequence.txt
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep2_files/BRCA1_HU_Touro_rep2_sequence.txt
+87796920 Touro_rep2_files/BRCA1_HU_Touro_rep2_sequence.txt
+
+#BrdU
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/BRDU/rep1/SRR648788.fastq 
+142504604 GEO_ChIP_seq/BRDU/rep1/SRR648788.fastq
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/BRDU/rep2/SRR648789.fastq 
+122002072 GEO_ChIP_seq/BRDU/rep2/SRR648789.fastq
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep1_files/BRDU_HU_Touro_rep1.fastq
+104973023 Touro_rep1_files/BRDU_HU_Touro_rep1.fastq
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep2_files/BrdU_HU_Touro_rep2_FASTQ_sequence.txt
+107621444 Touro_rep2_files/BrdU_HU_Touro_rep2_FASTQ_sequence.txt
+
+# RPA
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/RPA/rep1/SRR648773.fastq GEO_ChIP_seq/RPA/rep2/SRR648774.fastq 
+   66032876 GEO_ChIP_seq/RPA/rep1/SRR648773.fastq
+  150151976 GEO_ChIP_seq/RPA/rep2/SRR648774.fastq
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep1_files/RPA_HU_Touro_rep1_sequence.txt Touro_rep2_files/RPA_HU_Touro_rep2_sequence.txt
+  66032876 Touro_rep1_files/RPA_HU_Touro_rep1_sequence.txt
+ 102503636 Touro_rep2_files/RPA_HU_Touro_rep2_sequence.txt
+
+# SMC5
+
+arrajpur@crick:~/raw-data$ wc -l GEO_ChIP_seq/SMC5/rep1/SRR648777.fastq GEO_ChIP_seq/SMC5/rep2/SRR648778.fastq 
+  63859432 GEO_ChIP_seq/SMC5/rep1/SRR648777.fastq
+ 134050492 GEO_ChIP_seq/SMC5/rep2/SRR648778.fastq
+
+arrajpur@crick:~/raw-data$ wc -l Touro_rep1_files/SMC5_HU_Touro_rep1_sequence.txt Touro_rep2_files/SMC5_HU_Touro_rep2_sequence.txt
+  63859432 Touro_rep1_files/SMC5_HU_Touro_rep1_sequence.txt
+  92040140 Touro_rep2_files/SMC5_HU_Touro_rep2_sequence.txt
+
+# preparing SICER runs
+
+arrajpur@crick:~/processing/binning/sicer/new_touro$ makebatch.pl sicer200 cmdfile200_rep1.txt rep1/ BRCA1_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed BRCA1_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed SMC5_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed SMC5_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed
+
+arrajpur@crick:~/processing/binning/sicer/new_touro$ makebatch.pl sicer600 cmdfile600_rep1.txt rep1/ BRDU_HU_Touro_rep1.fastq.trim.sam.bedgraph.bed BRDU_NT_Touro_rep1.fastq.trim.sam.bedgraph.bed RPA_HU_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed RPA_NT_Touro_rep1_sequence.txt.trim.sam.bedgraph.bed
+
+arrajpur@crick:~/processing/binning/sicer/new_touro$ makebatch.pl sicer600_2 cmdfile600_rep2.txt rep2/ BrdU_HU_Touro_rep2_FASTQ_sequence.txt.trim.sam.bedgraph.bed BrdU_NT_Touro_rep2_FASTQ_sequence.txt.trim.sam.bedgraph.bed RPA_HU_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed RPA_NT_Touro_rep2_sequence.txt.trim.sam.bedgraph.bed
+
+# not running Touro rep2 BRCA1 or SMC5
+
+# also should try macs peak calling and stitching as Stella says this is what macs is meant for.
+
+# macs2 does not produce wig file
+
+arrajpur@crick:~/processing/macs/new_touro/rep1/brca1_hu$ macs2 callpeak -t ~/processing/bam/BRCA1_HU_Touro_rep1_sequence.txt.trim.bam -c ~/processing/bam/merged_wce_l.bam -f BAM --broad -g mm -n brca1_hu_rep1
+
+# currently -q is set at default 0.01 but macs recommends 0.05 for broad regions
+# very few peaks called, going to modify this
+
+arrajpur@crick:~/processing/macs/new_touro/rep1/brca1_hu$ macs2 callpeak -t ~/processing/bam/BRCA1_HU_Touro_rep1_sequence.txt.trim.bam -c ~/processing/bam/merged_wce_l.bam -f BAM --broad -g mm -n brca1_hu_rep1 -q 0.05
+
+# macs is also recommending to call with --nomodel --extsize XXX
+# only 1793 peaks. 
+
+# Okay, now do not use Touro data, only GEO. 
+# remember that GEO trimmed off overrepresented "No Hit" sequences as well as adaptors.
+
+# re-trimming with stella's adaptor list
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/BRCA1/rep1$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648775.fastq > BRCA1_rep1.trim.fastq
+
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/BRCA1/rep1$ sbatch -p bigmemm brca1_rep1.sh 
+
+# BRCA1 rep2
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/BRCA1/rep2$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648776.fastq > BRCA1_rep2.trim.fastq
+
+# BrdU rep1
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/BRDU/rep1$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648788.fastq > BRDU_rep1.trim.fastq
+
+# BrdU rep2
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/BRDU/rep2$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648789.fastq > BRDU_rep2.trim.fastq
+
+# RPA rep1
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/RPA/rep1$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648773.fastq > RPA_rep1.trim.fastq 
+# RPA rep2
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/RPA/rep2$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648774.fastq > RPA_rep2.trim.fastq
+
+# SMC5 rep1
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/SMC5/rep1$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648777.fastq > SMC5_rep1.trim.fastq
+
+# SMC5 rep2
+arrajpur@crick:~/raw-data/GEO_ChIP_seq/SMC5/rep2$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/adaptors_list.fa SRR648778.fastq > SMC5_rep2.trim.fastq
+
+# the batch files will process them to bam. Need to continue with merging reps, binning, etc. Then peak calling.
+
+arrajpur@crick:~/processing/bam$ samtools merge -f BRCA_merge.bam BRCA1_rep1.trim.fastq.bam BRCA1_rep2.trim.fastq.bam 
+
+arrajpur@crick:~/processing/bam$ samtools merge -f RPA_merge.bam RPA_rep1.trim.fastq.bam RPA_rep2.trim.fastq.bam 
+
+arrajpur@crick:~/processing/bam$ samtools merge -f BRDU_merge.bam BRDU_rep1.trim.fastq.bam BRDU_rep2.trim.fastq.bam 
+
+arrajpur@crick:~/processing/bam$ samtools merge -f SMC5_merge.bam SMC5_rep1.trim.fastq.bam SMC5_rep2.trim.fastq.bam 
+
+arrajpur@crick:~/processing/bam$ samtools view -h RPA_merge.bam > ../sam/RPA_merge.sam 
+
+arrajpur@crick:~/processing/bam$ samtools view -h BRDU_merge.bam > ../sam/BRDU_merge.sam 
+
+arrajpur@crick:~/processing/bam$ samtools view -h BRCA_merge.bam > ../sam/BRCA1_merge.sam 
+
+arrajpur@crick:~/processing/bam$ samtools view -h SMC5_merge.bam > ../sam/SMC5_merge.sam 
+
+arrajpur@crick:~/processing/binning$ ./read_depth.pl 200 1 ../sam/BRCA1_merge.sam > bedgraph/BRCA1_merge.bedgraph 
+
+arrajpur@crick:~/processing/binning$ ./read_depth.pl 200 1 ../sam/BRDU_merge.sam > bedgraph/BRDU_merge.bedgraph 
+
+arrajpur@crick:~/processing/binning$ ./read_depth.pl 200 1 ../sam/RPA_merge.sam > bedgraph/RPA_merge.bedgraph 
+
+arrajpur@crick:~/processing/binning$ ./read_depth.pl 200 1 ../sam/SMC5_merge.sam > bedgraph/SMC5_merge.bedgraph 
+	
+arrajpur@crick:~/processing/binning$ ./split_bins.pl bedgraph/SMC5_merge.bedgraph 10 200 > beds/SMC5_merge.bed
+
+arrajpur@crick:~/processing/binning$ ./split_bins.pl bedgraph/RPA_merge.bedgraph 10 200 > beds/RPA_merge.bed
+
+arrajpur@crick:~/processing/binning$ ./split_bins.pl bedgraph/BRDU_merge.bedgraph 10 200 > beds/BRDU_merge.bed
+
+# example sicer run: rest are in batch files
+arrajpur@crick:~/processing/binning/sicer/geo_merge_control$ sicer ~/processing/binning/split_bins BRCA1_merge.bed merged_wce_l.bed . mm9 1 200 25 0.74 200 0.01
+
+# broad peak
+arrajpur@crick:~/processing/broadPeak/new_geo_merge$ BroadPeak -i ~/processing/binning/bedgraph/BRCA1_merge.bedgraph -m BRCA1_merge -g 2725765481 -t unsupervised 
+
+arrajpur@crick:~/processing/broadPeak/new_geo_merge$ BroadPeak -i ~/processing/binning/bedgraph/BRDU_merge.bedgraph -m BRDU_merge -g 2725765481 -t unsupervised 
+
+arrajpur@crick:~/processing/broadPeak/new_geo_merge$ BroadPeak -i ~/processing/binning/bedgraph/SMC5_merge.bedgraph -m SMC5_merge -g 2725765481 -t unsupervised 
+
+arrajpur@crick:~/processing/broadPeak/new_geo_merge$ BroadPeak -i ~/processing/binning/bedgraph/RPA_merge.bedgraph -m RPA_merge -g 2725765481 -t unsupervised 
+
+# calling BroadPeak peaks on wce
+arrajpur@crick:~/processing/broadPeak/wce$ BroadPeak -i ~/processing/binning/bedgraph/merged_wce_l.bedgraph -m WCE_merge -g 2725765481 -t unsupervised
+
+# since BroadPeak peaks are so big, going to try to use PeakSplitter to cut them down.
+# Do NOT try to compile PeakSplitter from source, infinite compilation errors
+
+# peakSplitter wants wig file input. Going to use macs14.
+arrajpur@crick:~/processing/macs14$ macs14 -t ../bam/merged_wce_l.bam -f BAM -g mm -w -single-profile -n WCE_merge
+
+# Peaksplitter makes little MACs peaks with WCE. trying with RPA
+arrajpur@crick:~/processing/macs14$ macs14 -t ../bam/RPA_merge.bam -f BAM -g mm -n RPA_merge -w --single-profile
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/new_geo_merge/RPA_merge/RPA_merge_broad_peak_unsupervised/RPA_merge_broad_peak_unsupervised.bed -w ~/processing/macs14/RPA_merge_MACS_wiggle/treat/RPA_merge_treat_afterfiting_all.wig.gz  -o . -u http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0 
+
+# PeakSplitter is very stringent
+# try with 200bp smooth
+arrajpur@crick:~/processing/binning$ ./clean_bedgraphs.pl bedgraph/RPA_merge.bedgraph RPA_merge mm9.chrom 
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/new_geo_merge/RPA_merge/RPA_merge_broad_peak_unsupervised/RPA_merge_broad_peak_unsupervised.bed -w ~/processing/binning/bedgraph/RPA_merge.bedgraph  -o . -u http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0 
+
+# Yes, this is how to do it. Peaks definitely split up properly though in some cases new peaks appear because ???
+
+# re-doing WCE
+
+arrajpur@crick:~/processing/binning$ ./clean_bedgraphs.pl bedgraph/merged_wce_l.bedgraph merged_WCE mm9.chrom 
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/wce/WCE_merge/WCE_merge_broad_peak_unsupervised/WCE_merge_broad_peak_unsupervised.bed -w ~/processing/binning/bedgraph/merged_wce_l.bedgraph  -o . -u http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0 
+
+arrajpur@crick:~/processing/peakSplitter$ mv RPA_bedgraph_peaksplit.bed RPA_merge_broadpeak_split.bed
+
+arrajpur@crick:~/processing/peakSplitter$ mv WCE_peaksplitter.bed WCE_merge_broadpeak_split.bed
+
+# These peaks are good. Or at least, decent. Make MAnorm plot.
+
+arrajpur@crick:~/processing/MAnorm$ bamToBed -i ../bam/merged_wce_l.bam | cut -f 1,2,3,6 - > merged_wce_4col_reads.bed
+
+arrajpur@crick:~/processing/MAnorm$ bamToBed -i ../bam/RPA_merge.bam | cut -f 1,2,3,6 - > RPA_merge_4col_reads.bed
+
+arrajpur@crick:~/processing/MAnorm$ ./MAnorm.sh ../peakSplitter/RPA_merge_broadpeak_split.bed ../peakSplitter/WCE_merge_broadpeak_split.bed merged_wce_4col_reads.bed RPA_merge_4col_reads.bed 25 25 
+
+#############
+## 8.25.15 ##
+#############
+
+# MAnorm finished. 
+
+arrajpur@crick:~/processing/MAnorm$ mv MAnorm_result.xls RPA_broadsplit_WCE_result.xls
+
+arrajpur@crick:~/processing/MAnorm$ cp RPA_broadsplit_WCE_result.xls out/
+
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl RPA_broadsplit_WCE_result.xls RPA_broadsplit_WCE_result_10col.xls 
+
+arrajpur@crick:~/processing/MAnorm/out$ cp plot_p_val_rpa_wce_broadpeak.R plot_p_val_rpa_wce_broadsplit.R
+
+arrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_rpa_wce_broadsplit.R 
+
+# strange plot ... try removing NAs instead of turning them to 0
+
+arrajpur@crick:~/processing/MAnorm/out$ cp ../RPA_broadsplit_WCE_result.xls .
+
+%g/NA/d
+
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl RPA_broadsplit_WCE_result.xls RPA_broadsplit_WCE_result_10col.xls 
+
+arrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_rpa_wce_broadsplit.R 
+
+# Hardly any difference. Still, it is better to remove NAs.
+# What was I sbatching yesterday???
+# Looks like SICER runs? But usually those have a different name. Probably processing runs for Touro reps no longer needed.
+
+arrajpur@crick:~/processing/binning$ ./clean_bedgraphs.pl bedgraph/BRDU_merge.bedgraph BRDU_merge mm9.chrom 
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/new_geo_merge/BRDU_merge/BRDU_merge_broad_peak_unsupervised/BRDU_merge_broad_peak_unsupervised.bed -w ~/processing/binning/bedgraph/BRDU_merge.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/processing/binning$ ./clean_bedgraphs.pl bedgraph/BRCA1_merge.bedgraph BRCA1_merge mm9.chrom 
+arrajpur@crick:~/processing/binning$ ./clean_bedgraphs.pl bedgraph/SMC5_merge.bedgraph SMC5_merge mm9.chrom 
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/new_geo_merge/BRCA1_merge/BRCA1_merge_broad_peak_unsupervised/BRCA1_merge_broad_peak_unsupervised.bed -w ~/processing/binning/bedgraph/BRCA1_merge.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/processing/peakSplitter$ ./PeakSplitter -p ~/processing/broadPeak/new_geo_merge/SMC5_merge/SMC5_merge_broad_peak_unsupervised/SMC5_merge_broad_peak_unsupervised.bed -w ~/processing/binning/bedgraph/SMC5_merge.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/processing/MAnorm$ bamToBed -i ../bam/BRCA_merge.bam | cut -f 1,2,3,6 > BRCA1_merge_4col_reads.bed
+
+arrajpur@crick:~/processing/MAnorm$ bamToBed -i ../bam/BRDU_merge.bam | cut -f 1,2,3,6 > BRDU_merge_4col_reads.bed
+
+arrajpur@crick:~/processing/MAnorm$ bamToBed -i ../bam/SMC5_merge.bam | cut -f 1,2,3,6 > SMC5_merge_4col_reads.bed
+
+# note: result 4col read files are NOT sorted. Should not make a difference.
+# sorted not needed and makes no difference: look at MAnorm.sh
+
+# Example MAnorm cmd:
+./MAnorm.sh ../peakSplitter/RPA_merge_broadpeak_split.bed ../peakSplitter/WCE_merge_broadpeak_split.bed merged_wce_4col_reads.bed RPA_merge_4col_reads.bed 25 25
+
+arrajpur@crick:~/processing/peakSplitter$ cut -f 1,2,3 BRCA1_merge_broad_peak_unsupervised.subpeaks.bed > BRCA1_merge_broadpeak_split.bed
+arrajpur@crick:~/processing/peakSplitter$ cut -f 1,2,3 BRDU_merge_broad_peak_unsupervised.subpeaks.bed > BRDU_merge_broadpeak_split.bed
+arrajpur@crick:~/processing/peakSplitter$ cut -f 1,2,3 RPA_merge_broad_peak_unsupervised.subpeaks.bed > RPA_merge_broadpeak_split.bed
+
+# running manorm.sh for all remaining samples (BRDU, SMC5, BRCA1)
+
+# xls M value is 7, desc is 4, pval 9
+# WAIT. Look at MAnorm cmd. reads are in wrong order. 
+# fixed manorm.sh, redoing RPA and all other runs.
+
+# Well, it looks like MAnorm takes about 6.5 hrs. 
+arrajpur@crick:~/processing/MAnorm$ cp manorm.sh manorm1.sh 
+arrajpur@crick:~/processing/MAnorm$ cp manorm.sh manorm2.sh 
+arrajpur@crick:~/processing/MAnorm$ cp manorm.sh manorm3.sh 
+
+arrajpur@crick:~/processing/MAnorm$ scancel 2121
+arrajpur@crick:~/processing/MAnorm$ sbatch -p bigmemm manorm.sh 
+Submitted batch job 2122
+arrajpur@crick:~/processing/MAnorm$ sbatch -p bigmemm manorm1.sh 
+Submitted batch job 2123
+arrajpur@crick:~/processing/MAnorm$ sbatch -p bigmemm manorm2.sh 
+Submitted batch job 2124
+arrajpur@crick:~/processing/MAnorm$ sbatch -p bigmemm manorm3.sh 
+Submitted batch job 2125
+
+# At least they will all be done in 6hrs ...
+# wait -- when they all start to produce outfiles it will be the same name!
+
+arrajpur@crick:~/processing/MAnorm$ mkdir manorm1
+arrajpur@crick:~/processing/MAnorm$ mkdir manorm2
+arrajpur@crick:~/processing/MAnorm$ mkdir manorm3
+
+# manorm[13].sh failed for some strange reason possibily due to directory ... or MAnorm.r being in the outside dir. Great. manorm.sh and manorm2.sh may have been saved. Rerunning manorm[13].sh
+
+# considering process to reprocess all data without so many smooths and late normalization.
+
+arrajpur@crick:~$ mkdir AltMethodErfs
+
+arrajpur@crick:~/AltMethodErfs$ cp ~/processing/sam/BRCA1_merge.sam .
+arrajpur@crick:~/AltMethodErfs$ cp ~/processing/sam/BRDU_merge.sam .
+arrajpur@crick:~/AltMethodErfs$ cp ~/processing/sam/SMC5_merge.sam .
+arrajpur@crick:~/AltMethodErfs$ cp ~/processing/sam/RPA_merge.sam .
+
+# find # of reads
+arrajpur@crick:~/processing/bam$ samtools flagstat BRDU_merge.bam 
+62722026 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 duplicates
+60682615 + 0 mapped (96.75%:-nan%)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (-nan%:-nan%)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (-nan%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+arrajpur@crick:~/processing/bam$ samtools flagstat BRCA_merge.bam 
+49448667 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 duplicates
+37259214 + 0 mapped (75.35%:-nan%)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (-nan%:-nan%)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (-nan%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+arrajpur@crick:~/processing/bam$ samtools flagstat RPA_merge.bam 
+52611413 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 duplicates
+48241170 + 0 mapped (91.69%:-nan%)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (-nan%:-nan%)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (-nan%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+arrajpur@crick:~/processing/bam$ samtools flagstat SMC5_merge.bam 
+47189170 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 duplicates
+40608327 + 0 mapped (86.05%:-nan%)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (-nan%:-nan%)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (-nan%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+# forgot about wce
+arrajpur@crick:~/AltMethodErfs$ cp ~/processing/sam/merged_wce_l.sam .
+
+arrajpur@crick:~/AltMethodErfs$ samtools flagstat ~/processing/bam/merged_wce_l.bam 
+17553280 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 duplicates
+16128319 + 0 mapped (91.88%:-nan%)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (-nan%:-nan%)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (-nan%:-nan%)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+
+# modified sam_norm.pl to accept a seed.
+arrajpur@crick:~/AltMethodErfs$ sam_norm.pl BRDU_merge.sam 47189170 2
+arrajpur@crick:~/AltMethodErfs$ sam_norm.pl BRCA1_merge.sam 47189170 2
+arrajpur@crick:~/AltMethodErfs$ sam_norm.pl RPA_merge.sam 47189170 2
+# SMC5 already has this read count 
+
+# Have to re-do all these, WCE has way lower readcount
+# should I even be normalizing to wce in this way?
+
+# not normalizing to WCE in this way for now. Possibly later redo.
+
+# Now Keith's script to bin into 10bp bins for bedgraph
+arrajpur@crick:~/AltMethodErfs$ ../processing/binning/read_depth.pl 10 1 RPA_merge.sam > RPA_merge.bedgraph
+
+# Stella says different method of normalization as this will result in fewer peaks. See chat record.
+
+arrajpur@crick:~/AltMethodErfs$ ls
+BRCA1_merge.sam.norm  BRDU_merge.sam.norm  RPA_merge.bedgraph  RPA_merge.sam.norm
+arrajpur@crick:~/AltMethodErfs$ mkdir random_sample_norm
+arrajpur@crick:~/AltMethodErfs$ mv * random_sample_norm/
+
+#############
+## 8.26.15 ##
+#############
+
+# MAnorm runs finally finished. Took 8-9 hrs!
+
+arrajpur@crick:~/processing/MAnorm$ cp RPA_broadsplit_WCE_result.xls out/
+arrajpur@crick:~/processing/MAnorm$ cp manorm1/BRCA1_broadsplit_WCE_result.xls out/
+arrajpur@crick:~/processing/MAnorm$ cp manorm2/BRDU_broadsplit_WCE_result.xls out/
+arrajpur@crick:~/processing/MAnorm$ cp manorm3/SMC5_broadsplit_WCE_result.xls out/
+
+# Running :%g/NA/d on all files and removing headers
+
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl RPA_broadsplit_WCE_result.xls RPA_broadsplit_WCE_result_10col.xls
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl BRCA1_broadsplit_WCE_result.xls BRCA1_broadsplit_WCE_result_10col.xls
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl BRDU_broadsplit_WCE_result.xls BRDU_broadsplit_WCE_result_10col.xls
+arrajpur@crick:~/processing/MAnorm/out$ ./manorm_pval.pl SMC5_broadsplit_WCE_result.xls SMC5_broadsplit_WCE_result_10col.xls
+
+arrajpur@crick:~/processing/MAnorm/out$ cp plot_p_val_rpa_wce_broadsplit.R plot_p_val_brca1_wce_broadsplit.R
+arrajpur@crick:~/processing/MAnorm/out$ cp plot_p_val_rpa_wce_broadsplit.R plot_p_val_brdu_wce_broadsplit.R
+arrajpur@crick:~/processing/MAnorm/out$ cp plot_p_val_rpa_wce_broadsplit.R plot_p_val_smc5_wce_broadsplit.R
+
+arrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_rpa_wce_broadsplit.R 
+arrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_brca1_wce_broadsplit.Rarrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_brdu_wce_broadsplit.R 
+arrajpur@crick:~/processing/MAnorm/out$ R --no-save < plot_p_val_smc5_wce_broadsplit.R 
+
+# SMC5 has a bunch of peaks that are higher in WCE than sample???
+# The command looks correct.
+# same trend in all samples ...
+
+# But these numbers are okay:
+
+# M > 2
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+438123
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 2) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+980
+
+arrajpur@crick:~/processing/MAnorm/out$ echo "980/438123" | bc -l
+.00223681477575931873
+
+# M > 2, P > 5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+23335
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 2 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+34
+
+arrajpur@crick:~/processing/MAnorm/out$ echo "34/23335" | bc -l
+.00145703878294407542
+
+# M > 4, P > 5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+13665
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 4 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+7
+
+arrajpur@crick:~/processing/MAnorm/out$ echo "7/13665" | bc -l
+.00051225759238931577
+
+# Wow FDR ~ 5E-4!
+
+# Removing P val constraint does not change numbers at M > 4
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+13665
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 4) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+7
+
+# Huge reduction in peaks when trying to move to M > 5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+33
+
+# Dramatic differences when moving M value
+
+# At M>3, adding P value cut off changes peak numbers but has little effect on FDR
+
+# M > 3
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+190579
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 3) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+187
+arrajpur@crick:~/processing/MAnorm/out$ echo "187/190579" | bc -l
+.00098122038629649646
+
+# M > 3, P > 5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+22366
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 3 && $9 > 5) print;}' RPA_broadsplit_WCE_result.xls| wc -l
+21
+arrajpur@crick:~/processing/MAnorm/out$ echo "21/22366" | bc -l
+.00093892515425198962
+
+# Going to go with M > 4, P > 5. For RPA, FDR ~ 5E-4, close enough! # peaks = 13.5k, which may not be enough considering merging.
+# MISTAKE M3!
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+20249
+
+# Not that many got merged?
+
+# Going to look on genome browser MISTAKE M3
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > RPA_broadsplit_M4_P5_5kb_merge_test.bed
+
+# Checking how many erfs were caught: MISTAKE M3!
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > RPA_broadsplit_M4_P5_5kb_merge_test.bed
+488
+
+# Okay so not catching all the erfs.
+
+# And a bunch of RPA peaks have no overlap with ERFs--wait that is M3 not M4!
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 3 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -v -b ~/erf_skew_sim/erfs_hotspots.bed -a - | wc -l
+17680
+
+# But there are a ton of peaks
+
+# The merge is not making ERFs ... very small peaks instead of broad ERFs. Looks like a bigger merge than 5kb is needed, or more peaks.
+
+# MISTAKE above files were make with M3 NOT M4! Redoing
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+12878
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > RPA_broadsplit_M4_P5_5kb_merge_test.bed
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+431
+
+# How many ERFs do not overlap at all?
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -v -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+188
+
+# Yeah even fewer peaks and small overlap ...
+# maybe just try with a p-value cut off?
+
+# P>5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| wc -l
+23934
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| wc -l
+3612
+
+arrajpur@crick:~/processing/MAnorm/out$ echo "3612/23934" | bc -l
+.15091501629481072950
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+21331
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+510
+
+# we need to catch a lot of erfs since BRCA1, RPA, SMC5 co-intersect determines ERFs. 
+# Wait ... is this a merge of all three?
+# No, because it is the co-localization ... unless it IS a merge and within 5kb all are merged and then we see ERFs and filter by length????
+
+# Testing to see if this has any merit:
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' BRCA1_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > BRCA1_broadsplit_M4_P5_5kb_merge_test.bed
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 4 && $9 > 5) print $1 "\t" $2 "\t" $3;}' SMC5_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > SMC5_broadsplit_M4_P5_5kb_merge_test.bed
+
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_5kb_merge_test.bed BRCA1_broadsplit_M4_P5_5kb_merge_test.bed SMC5_broadsplit_M4_P5_5kb_merge_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+543
+
+# Hmm not bad ... Try without merging individual peaks first.
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+543
+
+# same overlap.
+
+# Quite a few total peaks
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+26337
+
+# So presumably we're still dealing with very short peaks
+
+# Yup, avg length =~ 1kb
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+1205.5
+
+# Try a 10kb merge?
+
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 10000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+543
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 10000 -i - | wc -l
+23587
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M4_P5_test.bed BRCA1_broadsplit_M4_P5_test.bed SMC5_broadsplit_M4_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 10000 -i - | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+2220.36
+
+# very similar numbers.
+
+# M>0 P>5
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 &&$9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| wc -l
+23346
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak2" || $4 == "common_peak2") && $7 > 0 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| wc -l
+40
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 &&$9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+509
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 &&$9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+20954
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 &&$9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+1136.45
+
+# M>0
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+618
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 ) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+40758
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+29303.6
+
+# Wow.
+
+# Okay there are probably a crazy number of false positives but THIS IS IN RANGE
+
+# I do not trust these very much. SO LENIENT.
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0) print $1 "\t" $2 "\t" $3;}' BRCA1_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > BRCA1_broadsplit_M0_test.bed
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0) print $1 "\t" $2 "\t" $3;}' SMC5_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > SMC5_broadsplit_M0_test.bed
+
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_test.bed -b BRCA1_broadsplit_M0_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_test.bed | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+618
+
+# Wow again. How many new peaks though? And this is strict intersect. Peak lengths?
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_test.bed -b BRCA1_broadsplit_M0_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_test.bed | awk '{print $3 - $2}' | awk '{sum += $1} END {print sum/NR}'
+50517
+
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_test.bed -b BRCA1_broadsplit_M0_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_test.bed | wc -l
+17513
+
+# Looking at genome browser, I do not like the RPA regions.
+
+# look at the strict intersect
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_test.bed -b BRCA1_broadsplit_M0_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_test.bed > 3peakintersect.bed
+
+# strict intersect is much better but WAY too broad. So many false positives.
+
+# M0 is not going to work.
+
+# Trying M>0 P>5
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 && $9 > 5) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > RPA_broadsplit_M0_P5_test.bed
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 && $9 > 5) print $1 "\t" $2 "\t" $3;}' BRCA1_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > BRCA1_broadsplit_M0_P5_test.bed
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 0 && $9 > 5) print $1 "\t" $2 "\t" $3;}' SMC5_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > SMC5_broadsplit_M0_P5_test.bed
+
+# strict intersect
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_P5_test.bed -b BRCA1_broadsplit_M0_P5_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_P5_test.bed | wc -l
+427
+
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_P5_test.bed -b BRCA1_broadsplit_M0_P5_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_P5_test.bed | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+141
+
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M0_P5_test.bed -b BRCA1_broadsplit_M0_P5_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M0_P5_test.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+787.321
+
+# merge 5kb
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M0_P5_test.bed BRCA1_broadsplit_M0_P5_test.bed SMC5_broadsplit_M0_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | wc -l
+39193
+
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M0_P5_test.bed BRCA1_broadsplit_M0_P5_test.bed SMC5_broadsplit_M0_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+596
+
+arrajpur@crick:~/processing/MAnorm/out$ cat RPA_broadsplit_M0_P5_test.bed BRCA1_broadsplit_M0_P5_test.bed SMC5_broadsplit_M0_P5_test.bed | sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - | awk '{print $3 - $2}'  | awk '{sum+=$1} END {print sum/NR}' 
+1678.8
+
+# Merge is clearly a bad idea but this data can't even handle p5!
+
+# Try M>2
+
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 ) print $1 "\t" $2 "\t" $3;}' SMC5_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > SMC5_broadsplit_M2_test.bed
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 ) print $1 "\t" $2 "\t" $3;}' BRCA1_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > BRCA1_broadsplit_M2_test.bed
+arrajpur@crick:~/processing/MAnorm/out$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 ) print $1 "\t" $2 "\t" $3;}' RPA_broadsplit_WCE_result.xls| sort -k 1,1 -k 2,2n | bedtools merge -d 5000 -i - > RPA_broadsplit_M2_test.bed
+
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M2_test.bed -b BRCA1_broadsplit_M2_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M2_test.bed | wc -l
+51427
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M2_test.bed -b BRCA1_broadsplit_M2_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M2_test.bed | bedtools intersect -u -a ~/erf_skew_sim/erfs_hotspots.bed -b - | wc -l
+603
+arrajpur@crick:~/processing/MAnorm/out$ bedtools intersect -a RPA_broadsplit_M2_test.bed -b BRCA1_broadsplit_M2_test.bed | bedtools intersect -a - -b SMC5_broadsplit_M2_test.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum/NR}'
+4869.78
+
+# Less bad ... genome browser shows it is not stringent enough (it's trying to reform BroadPeak peaks--we're not cutting enough stuff out)
+
+# The peaks do not appear to be clustering around the ERFs
+
+# Following Stella's method for normalization (for Alt Method for ERFs), created new dir:
+
+arrajpur@crick:~/AltMethodErfs$ mkdir DESeq_norm
+
+arrajpur@crick:~/github/utilities$ cp ~/processing/binning/read_depth.pl .
+
+# BroadPeak requires binned bedgraph data, going to do with Keith's script
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ read_depth.pl 10 1 ~/processing/sam/RPA_merge.sam > RPA_merge_10bp_bin.bedgraph
+
+Average read count per bin was 0.19
+Max read count observed was in bin * 0-9: 4370243 reads
+90.33%  of bins had zero read counts
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ read_depth.pl 10 1 ~/processing/sam/BRCA1_merge.sam > BRCA1_merge_10bp_bin.bedgraph
+
+Average read count per bin was 0.18
+Max read count observed was in bin * 0-9: 12189453 reads
+92.07%  of bins had zero read counts
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ read_depth.pl 10 1 ~/processing/sam/SMC5_merge.sam > SMC5_merge_10bp_bin.bedgraph
+Average read count per bin was 0.17
+Max read count observed was in bin * 0-9: 6580843 reads
+90.70%  of bins had zero read counts
+
+
+# Maybe make a series of 3D scatterplots to show M and P effect on: avg peak length, # peaks total, # overlaps with erfs
+
+
+
+arrajpur@crick:~/processing/MAnorm/out$ mkdir erf_M_P_comparison
+
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ cp ../RPA_broadsplit_WCE_result.xls .
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ cp ../BRCA1_broadsplit_WCE_result.xls .
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ cp ../SMC5_broadsplit_WCE_result.xls .
+
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ ./comparison.sh 
+
+# Summarized in summary.txt
+
+M       P       count   avg_len ERF_overlap
+0       0       17513   50517   618
+0       5       427     787.321 141
+1       0       40627   16243.8 618
+1       5       427     787.321 141
+2       0       51427   4869.78 603
+2       5       420     768.54  141
+3       0       18540   1644.3  516
+3       5       289     624.886 100
+4       0       59      494.847 19
+4       5       59      494.847 19
+5       0       3       332.667 1
+5       5       3       332.667 1
+
+# no need for 3d scatterplot
+
+# ggplot
+> pdf("scatterplot2d_count.pdf")
+> ggplot(summary, aes(x=M, y=count, color=P)) + geom_point(shape=19, size=5)+scale_colour_hue(l=50) + xlab("Fold Increase (M value)") + ylab("Intersected Peak Count") + ggtitle("BRCA1 RPA SMC5 Peak Intersect, Peak Count vs Fold Increase")+ geom_line(size=1, aes(group=P, color=P))
+> ggplot(summary, aes(x=M, y=avg_len, color=P)) + geom_point(shape=19, size=5)+scale_colour_hue(l=50) + xlab("Fold Increase (M value)") + ylab("Intersected Avg Peak Length") + ggtitle("BRCA1 RPA SMC5 Peak Intersect, Avg Peak Length vs Fold Increase") + geom_line(size=1, aes(group=P, color=P))
+
+
+
+# SCP'd over ranked erfs
+
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ mv ~/ranked_erfs.bed .
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ ./process_ranked.pl ranked_erfs.bed > ranked_erfs_rownum.bed
+
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ bedtools intersect -u -a ranked_erfs_rownum.bed -b beds/3peakintersect_M0_P0.bed | awk '{print $4}' > rank_M0_P0.txt
+
+619 / 3 =~ 206
+
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ sed -n '413,619p' ranked_erfs_rownum.bed > bottom_third_erfs.bed 
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ sed -n '207,412p' ranked_erfs_rownum.bed > middle_third_erfs.bed 
+arrajpur@crick:~/processing/MAnorm/out/erf_M_P_comparison$ sed -n '1,206p' ranked_erfs_rownum.bed > top_third_erfs.bed 
+
+# Okay, ERF hotspots known to be probably weird
+# It is okay to end up calling more, equivalent regions (if statistically they are the same--wilcoxon!) 
+# So go-ahead to stopping the replication method and going with a high-stringency alternate approach
+
+# Data is binned into 10bp bins like MACs
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ mkdir broadpeak
+arrajpur@crick:~/processing/binning$ cp clean_bedgraphs.pl ~/github/utilities/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ cp ~/processing/binning/mm9.chrom .
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ clean_bedgraphs.pl BRCA1_merge_10bp_bin.bedgraph BRCA1 mm9.chrom 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ clean_bedgraphs.pl RPA_merge_10bp_bin.bedgraph RPA mm9.chrom 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ clean_bedgraphs.pl SMC5_merge_10bp_bin.bedgraph SMC5 mm9.chrom  
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ mkdir browser
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ cp *.bedgraph browser/
+
+# Removing track lines from rest of files outside browser
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ BroadPeak -i ../BRCA1_merge_10bp_bin.bedgraph -m BRCA1 -g 2725765481 -t unsupervised -b 10
+
+#############
+## 8.27.15 ##
+#############
+
+# Running broadpeak.sh but it crashed so re-running
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ cd peaksplitter/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../broadpeak/BRCA1/BRCA1_broad_peak_unsupervised/BRCA1_broad_peak_unsupervised.bed -w ../browser/BRCA1_merge_10bp_bin.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../broadpeak/RPA/RPA_broad_peak_unsupervised/RPA_broad_peak_unsupervised.bed -w ../browser/RPA_merge_10bp_bin.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../broadpeak/SMC5/SMC5_broad_peak_unsupervised/SMC5_broad_peak_unsupervised.bed -w ../browser/SMC5_merge_10bp_bin.bedgraph -o . -u  http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+# forgot about WCE
+
+arrajpur@crick:~/AltMethodErfs$ read_depth.pl 10 1 ~/processing/sam/merged_wce_l.sam > WCE_merge_10bp_bin.bedgraph
+Average read count per bin was 0.06
+Max read count observed was in bin * 0-9: 1424961 reads
+97.29%  of bins had zero read counts
+
+#############
+## 8.28.15 ##
+#############
+
+# Ran broadpeak yesterday, finished run and now continuing
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ clean_bedgraphs.pl WCE_merge_10bp_bin.bedgraph WCE mm9.chrom 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm$ cp WCE_merge_10bp_bin.bedgraph browser/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ ~/PeakSplitter/PeakSplitter_Cpp/PeakSplitter_Linux64/PeakSplitter -p ../broadpeak/WCE/WCE_broad_peak_unsupervised/WCE_broad_peak_unsupervised.bed -w ../browser/WCE_merge_10bp_bin.bedgraph -o . -u http://www.ensembl.org/das/Mus_musculus.GRCm38.reference/ -n 0
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ mkdir beds
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ cut -f 1,2,3 BRCA1_broad_peak_unsupervised.subpeaks.bed > beds/BRCA1_peaks.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ cut -f 1,2,3 RPA_broad_peak_unsupervised.subpeaks.bed > beds/RPA_peaks.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ cut -f 1,2,3 SMC5_broad_peak_unsupervised.subpeaks.bed > beds/SMC5_peaks.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ cut -f 1,2,3 WCE_broad_peak_unsupervised.subpeaks.bed > beds/WCE_peaks.bed
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter/beds$ wc -l *
+  811864 BRCA1_peaks.bed
+ 1322755 RPA_peaks.bed
+  532685 SMC5_peaks.bed
+  165975 WCE_peaks.bed
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter/beds$ for f in * ; do echo $f ; awk '{print $3 - $2}' $f | awk '{sum+=$1} END {print sum/NR}' ; done
+BRCA1_peaks.bed
+22.315
+RPA_peaks.bed
+24.8024
+SMC5_peaks.bed
+22.2643
+WCE_peaks.bed
+73.5035
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ awk '{print $3 - $2}' BRCA1/BRCA1_broad_peak_unsupervised/BRCA1_broad_peak_unsupervised.bed | awk '{sum+=$1} END {print sum/NR}'
+7104.93
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ awk '{print $3 - $2}' RPA/RPA_broad_peak_unsupervised/RPA_broad_peak_unsupervised.bed | awk '{sum+=$1} END {print sum/NR}'
+3772.99
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ awk '{print $3 - $2}' SMC5/SMC5_broad_peak_unsupervised/SMC5_broad_peak_unsupervised.bed | awk '{sum+=$1} END {print sum/NR}'
+8748.06
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ awk '{print $3 - $2}' WCE/WCE_broad_peak_unsupervised/WCE_broad_peak_unsupervised.bed | awk '{sum+=$1} END {print sum/NR}'
+5379.55
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ wc -l BRCA1/BRCA1_broad_peak_unsupervised/BRCA1_broad_peak_unsupervised.bed 
+125490 BRCA1/BRCA1_broad_peak_unsupervised/BRCA1_broad_peak_unsupervised.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ wc -l SMC5/SMC5_broad_peak_unsupervised/SMC5_broad_peak_unsupervised.bed 
+108883 SMC5/SMC5_broad_peak_unsupervised/SMC5_broad_peak_unsupervised.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ wc -l RPA/RPA_broad_peak_unsupervised/RPA_broad_peak_unsupervised.bed 
+250332 RPA/RPA_broad_peak_unsupervised/RPA_broad_peak_unsupervised.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/broadpeak$ wc -l WCE/WCE_broad_peak_unsupervised/WCE_broad_peak_unsupervised.bed 
+162980 WCE/WCE_broad_peak_unsupervised/WCE_broad_peak_unsupervised.bed
+
+# just BroadPeak looks fine for this ... avg peak length 3k-5k which seems fine, peakSplitter is too small (22 - 50 bp). Continuing with only BroadPeak peaks.
+
+# First make genome browser session
+
+# Also do corr plot between reps--do I have to bin both reps seperately? Or deseq them? Deseq. 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/browser$ grep chr2 SMC5_merge_10bp_bin.bedgraph > SMC5_merge_10bp_bin_chr2.bedgraph 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/browser$ grep chr2 RPA_merge_10bp_bin.bedgraph > RPA_merge_10bp_bin_chr2.bedgraph 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/browser$ grep chr2 BRCA1_merge_10bp_bin.bedgraph > BRCA1_merge_10bp_bin_chr2.bedgraph 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/MAnorm.sh .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/MAnorm.r .
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/BRCA1_merge_4col_reads.bed .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/RPA_merge_4col_reads.bed .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/SMC5_merge_4col_reads.bed .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp ~/processing/MAnorm/merged_wce_4col_reads.bed .
+
+##############
+## 09.01.15 ##
+##############
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp RPA_broadpeak_WCE_result.xls SMC5_broadpeak_WCE_result.xls BRCA1_broadpeak_WCE_result.xls out/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ cp ~/processing/MAnorm/out/manorm_pval.pl .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ cp ~/processing/MAnorm/out/plot_p_val_brca1_wce_broadpeak.R .
+
+# ran all MAnorm pdfs, they don't look bad
+
+##############
+## 09.02.15 ##
+##############
+
+# Running shell script 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis$ ./stats.sh 
+# to list filtering data. Output is:
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis$ less -S ERF_analysis.txt 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis$ less -S file_analysis.txt 
+
+# Catching only 161 erfs out of total ... even at M>0 P>0
+# Does not appear to be much of a bias towards top/Med erfs over low
+# try a merge step?
+# 5kb merge after all intersects: did not work
+# merging before intersecting ChIP-seq files
+# again: not much difference. caught 1 more ERF
+# trying with 10kb
+# same as prev run
+
+# maybe peaksplitter + this?
+# also try SICER?
+
+# already ran peakSplitter but now need to MAnorm it
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ awk '{print $1 "\t" $2 "\t" $3}' BRCA1_broad_peak_unsupervised.subpeaks.bed > BRCA1_split.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ awk '{print $1 "\t" $2 "\t" $3}' RPA_broad_peak_unsupervised.subpeaks.bed > RPA_split.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ awk '{print $1 "\t" $2 "\t" $3}' SMC5_broad_peak_unsupervised.subpeaks.bed > SMC5_split.bed
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/peaksplitter$ awk '{print $1 "\t" $2 "\t" $3}' WCE_broad_peak_unsupervised.subpeaks.bed > WCE_split.bed
+
+# ran MAnorm overnight
+
+##############
+## 09.03.15 ##
+##############
+
+# MAnorm run finished
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm$ cp *peaksplit* out/
+# removing NA lines
+# These MAnorm files are very big
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ ./manorm_pval.pl BRCA1_peaksplit_WCE_result.xls BRCA1_peaksplit_WCE_result_10col.xls 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ ./manorm_pval.pl RPA_peaksplit_WCE_result.xls RPA_peaksplit_WCE_result_10col.xls 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ ./manorm_pval.pl SMC5_peaksplit_WCE_result.xls SMC5_peaksplit_WCE_result_10col.xls 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ cp plot_brca1_wce_broadpeak.R plot_brca1_wce_peaksplit.R 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ cp plot_rpa_wce_broadpeak.R plot_rpa_wce_peaksplit.R 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ cp plot_smc5_wce_broadpeak.R plot_smc5_wce_peaksplit.R 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ R --no-save < plot_brca1_wce_peaksplit.R 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ R --no-save < plot_rpa_wce_peaksplit.R 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out$ R --no-save < plot_smc5_wce_peaksplit.R 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis$ mkdir peaksplit
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis$ cp stats.sh top_third_erfs.bed middle_third_erfs.bed bottom_third_erfs.bed ranked_erfs.bed ../BRCA1_peaksplit_WCE_result.xls ../RPA_peaksplit_WCE_result.xls ../SMC5_peaksplit_WCE_result.xls peaksplit/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit$ ./stats.sh 
+
+# with Peaksplit and no merge, catching 616 erfs at max!!! Peaksplit is the way to go. Peaks are miniscule though, and MAnorm graphs are a little curious. Now to make R plots from this data. 2 Ind. vars and 6 Dep. variables.
+
+# DRAT accidentally deleted R code. Here we go again:
+
+nalysis <- read.delim("ERF_analysis.txt", header=T)
+> erf_analysis$P<-replace(erf_analysis$P,0==erf_analysis$P, 'P > 0')
+> erf_analysis$P<-replace(erf_analysis$P,1==erf_analysis$P, 'P > 1')
+> erf_analysis$P<-replace(erf_analysis$P,2==erf_analysis$P, 'P > 2')
+> erf_analysis$P<-replace(erf_analysis$P,3==erf_analysis$P, 'P > 3')
+> erf_analysis$P<-replace(erf_analysis$P,4==erf_analysis$P, 'P > 4')
+> erf_analysis$P<-replace(erf_analysis$P,5==erf_analysis$P, 'P > 5')
+> head(erf_analysis)
+  M     P  Count  AvgLen IntersectAll IntersectTop IntersectMed IntersectLow
+1 0 P > 0 258287 17.9289          616          205          206          205
+2 0 P > 1 148006 18.2983          609          205          205          199
+3 0 P > 2  23442 19.9161          509          198          174          137
+4 0 P > 3   1106 33.4322           76           43           22           11
+5 0 P > 4    553 39.2911            8            2            3            3
+6 0 P > 5    461 40.1302            5            1            3            1
+
+library(ggplot2)
+ggplot(erf_analysis, aes(x=M, y=Count, color=P)) +
+geom_point(shape=19, size=5) + 
+scale_colour_hue(l=50) +
+xlab("M value") +
+ylab("BRCA1/RPA/SMC5 Intersected Peak Count") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, Peak Count") +
+geom_line(size=1, aes(group=P, color=P))
+
+ggplot(erf_analysis, aes(x=M, y=AvgLen, color=P)) +
+geom_point(shape=19, size=5) +  
+scale_colour_hue(l=50) +
+xlab("M value") + 
+ylab("BRCA1/RPA/SMC5 Intersected Avg Peak Length") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, Avg Peak Length") +
+geom_line(size=1, aes(group=P, color=P))
+
+ggplot(erf_analysis, aes(x=M, y=IntersectAll, color=P)) +
+geom_point(shape=19, size=5) +
+scale_colour_hue(l=50) +
+xlab("M value") +
+ylab("# ERFs Intersect with BRCA1/RPA/SMC5 Peaks") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, All ERFs Intersect") +
+geom_line(size=1, aes(group=P, color=P))
+
+ggplot(erf_analysis, aes(x=M, y=IntersectTop, color=P)) +
+geom_point(shape=19, size=5) +
+scale_colour_hue(l=50) +
+xlab("M value") +
+ylab("# Top ERFs Intersect with BRCA1/RPA/SMC5 Peaks") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, Top ERFs Intersect") +
+geom_line(size=1, aes(group=P, color=P))
+
+ggplot(erf_analysis, aes(x=M, y=IntersectMed, color=P)) +
+geom_point(shape=19, size=5) +
+scale_colour_hue(l=50) +
+xlab("M value") +
+ylab("# Med ERFs Intersect with BRCA1/RPA/SMC5 Peaks") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, Med ERFs Intersect") +
+geom_line(size=1, aes(group=P, color=P))
+
+ggplot(erf_analysis, aes(x=M, y=IntersectLow, color=P)) +
+geom_point(shape=19, size=5) +
+scale_colour_hue(l=50) +
+xlab("M value") +
+ylab("# Low ERFs Intersect with BRCA1/RPA/SMC5 Peaks") +
+ggtitle("BRCA1/RPA/SMC5 Intersect, Broadpeak+Peaksplit, Low ERFs Intersect") +
+geom_line(size=1, aes(group=P, color=P))
+
+# moving to nomerge so I can test the merge
+
+# but technically shouldn't I merge before MAnorming? no. In Methods they take the bins that pass THEN merge them. And 17 is an insane peak length
+
+# Whoa wait I already merge 10kb in here. OOPS (how on earth are peaklengths 17 then?!)
+
+# removing 10kb individual peakset merge and adding 5kb intersected peaksets merge
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_merge$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_merge$ R --no-save < makegraphs.R 
+
+# aaah! Ran in wrong dir. ALl files now confused IGNORE DIR NAMES
+# 5kb postintersect merge looks awful ... very weird. rereran 10kb preintersect merge so that dir name is now correct. Rechecking.
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_merge$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_merge$ R --no-save < makegraphs.R 
+
+# It is correct ... something is going on. Something BIOLOGICAL and not buggy hopefully
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit$ cp 10kb_preint_merge/makegraphs.R 10kb_preint_merge/makegraphs.R 10kb_preint_merge/ranked_erfs.bed 10kb_preint_merge/top_third_erfs.bed 10kb_preint_merge/middle_third_erfs.bed 10kb_preint_merge/bottom_third_erfs.bed 5kb_preint_merge/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ cp ../10kb_preint_merge/stats.sh .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ cp ../10kb_preint_merge/*.xls .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ R --no-save < makegraphs.R 
+
+# trying nomerge
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit$ cp 5kb_preint_merge/*.xls 5kb_preint_merge/stats.sh 5kb_preint_merge/top_third_erfs.bed 5kb_preint_merge/middle_third_erfs.bed 5kb_preint_merge/bottom_third_erfs.bed 5kb_preint_merge/ranked_erfs.bed 5kb_preint_merge/makegraphs.R nomerge/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/nomerge$ ./stats.sh 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/nomerge$ R --no-save < makegraphs.R 
+
+# how strange ... no preintersect == dramatically reduced # of ERFs. Maybe ERFs reside in the region BETWEEN peaks? That's why so many smooth/merge steps are needed?
+
+# Look at on genome browser:
+# Peaksplit all 
+# M 0 - 2
+# P 0 - 2 
+# For 10kbmerge, 5kbmerge, nomerge
+
+# maybe do 10kb premerge 5kb postmerge??? Look at chr2:102572519-102836526
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ ls
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ cp stats.sh ranked_erfs.bed top_third_erfs.bed middle_third_erfs.bed bottom_third_erfs.bed *.xls makegraphs.R 5kb_postmerge/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/5kb_postmerge$ ./stats.sh 
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/5kb_postmerge$ R --no-save < makegraphs.R 
+
+# much broader peaks and peak count has reduced!
+# still not much centering on ERFs nor peaks the size of ERFs, try 10 and 20 kb postmerge
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ mkdir 20kb_postmerge
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ mkdir 10kb_postmerge
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ cp stats.sh *.xls *erfs* 10kb_postmerge/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge$ cp stats.sh *.xls *erfs* 20kb_postmerge/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/10kb_postmerge$ R --no-save < makegraphs.R 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/20kb_postmerge$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/20kb_postmerge$ R --no-save < makegraphs.R 
+
+# going to try 10kb pre 10kb post 1 kb min length filter now
+rrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/10kb_postmerge$ cp stats.sh makegraphs.R *xls *erfs* 1kb_length_filter/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/10kb_preint_merge/10kb_postmerge/1kb_length_filter$ ./stats.sh 
+
+# Very few of the peaks intersect without a merge but with one we see a ton of 3-sample ints and ERF overlap resulting. Why?
+# The general regions that the ChIP samples reside in are the same, but the specific hills-and-valleys of the signal are not
+# But then why does the broadPeak overlap look bad?
+# -> because it is hard to get MAnorm sig with broadPeak
+# What if a 100bp peaksplitter merge? 22 bp is v hard to match across 3 samples. But this is why we determine sig by little bins, but intersect big ones made up of these small sig bins.
+
+##############
+## 09.04.15 ##
+##############
+
+# trying something strange
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ cp ../peaksplit/*.xls .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ cp ../*result.xls .
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ mv BRCA1_broadpeak_WCE_result.xls broadpeak_BRCA1_peaksplit_WCE_result.xls 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ mv RPA_broadpeak_WCE_result.xls broadpeak_RPA_peaksplit_WCE_result.xls 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ mv SMC5_broadpeak_WCE_result.xls broadpeak_SMC5_peaksplit_WCE_result.xls 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ cp ../ranked_erfs.bed ../top_third_erfs.bed ../middle_third_erfs.bed ../bottom_third_erfs.bed ../peaksplit/makegraphs.R .
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ R --no-save < makegraphs.R a
+
+# very small peaks?! -> on AVG.
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak$ cp stats.sh makegraphs.R *.xls *erfs*  1kb_min_length/
+
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/1kb_min_length$ R --no-save < makegraphs.R 
+# okay > 1kb did not work at ALL. What is wrong?! -> an error. stats.sh in 1kb_min_length is correct THE ONE IN ../ IS NOT
+
+# These 1kb min broadpeak peaks look pretty good ... especially M3P4!
+
+# So the paper has an additional filtering: merge all erfs (postint) within 300 KB and remove all < 10 KB !!! Trying this. Try on 5kb, 10kb, and the broadpeak mapped
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ mkdir 300kb_post_10kb_min
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge$ cp makegraphs.R stats.sh *erf* *xls 300kb_post_10kb_min/
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ ./stats.sh 
+arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ R --no-save < makegraphs.R 
+

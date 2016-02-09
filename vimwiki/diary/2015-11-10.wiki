@@ -1,0 +1,133 @@
+= Lab Notes 11.10.15 =
+
+== Notes ==
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq/polII$ screen -S srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/polII/polII.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq/RPA$ screen -S srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/processing/metaplot/RPA.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByChipseq/SMC5$ screen -S srun -p bigmemm ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/processing/metaplot/SMC5.wig ~/processing/stats/beds/top_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/middle_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/bottom_by_ChipSeq_AltERFs.bed ~/processing/stats/beds/top_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/middle_by_ChipSeq_orig_erfs.bed ~/processing/stats/beds/bottom_by_ChipSeq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+* somehow those ran on head node. rerunning
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/RNAseq$ screen -S rnaseq srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/polII$ screen -S pol2 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/polII/polII.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/RPA$ screen -S RPA srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/processing/metaplot/RPA.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/BRCA1$ screen -S BRCA1 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/processing/metaplot/BRCA1.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/SMC5$ screen -S SMC5 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/processing/metaplot/SMC5.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/RNAseq$ screen -S SMC5 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 6 --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+* and we have segfaults on RNAseq split. Please let this be a sorting issue
+* looks like all the RNAseqs crashed
+* yup they're all unsorted.
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/RNAseq$ screen -S RNAseq srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/polII$ screen -S pol2 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/polII.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/RPA$ screen -S RPA srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/RPA.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/BRCA1$ screen -S BRCA1 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/BRCA1.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByRNAseq/SMC5$ screen -S SMC5 srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/SMC5.wig ~/processing/stats/beds/top_by_RNAseq_AltERFs.bed ~/processing/stats/beds/middle_by_RNAseq_AltERFs.bed ~/processing/stats/beds/bottom_by_RNAseq_AltERFs.bed ~/processing/stats/beds/top_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/middle_by_RNAseq_orig_erfs.bed ~/processing/stats/beds/bottom_by_RNAseq_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByPolII/polII$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/polII.wig ~/processing/stats/beds/top_by_polII_AltERFs.bed ~/processing/stats/beds/middle_by_polII_AltERFs.bed ~/processing/stats/beds/bottom_by_polII_AltERFs.bed ~/processing/stats/beds/top_by_polII_orig_erfs.bed ~/processing/stats/beds/middle_by_polII_orig_erfs.bed ~/processing/stats/beds/bottom_by_polII_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByPolII/RPA$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/RPA.wig ~/processing/stats/beds/top_by_polII_AltERFs.bed ~/processing/stats/beds/middle_by_polII_AltERFs.bed ~/processing/stats/beds/bottom_by_polII_AltERFs.bed ~/processing/stats/beds/top_by_polII_orig_erfs.bed ~/processing/stats/beds/middle_by_polII_orig_erfs.bed ~/processing/stats/beds/bottom_by_polII_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByPolII/RNAseq$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/top_by_polII_AltERFs.bed ~/processing/stats/beds/middle_by_polII_AltERFs.bed ~/processing/stats/beds/bottom_by_polII_AltERFs.bed ~/processing/stats/beds/top_by_polII_orig_erfs.bed ~/processing/stats/beds/middle_by_polII_orig_erfs.bed ~/processing/stats/beds/bottom_by_polII_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByPolII/BRCA1$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/BRCA1.wig ~/processing/stats/beds/top_by_polII_AltERFs.bed ~/processing/stats/beds/middle_by_polII_AltERFs.bed ~/processing/stats/beds/bottom_by_polII_AltERFs.bed ~/processing/stats/beds/top_by_polII_orig_erfs.bed ~/processing/stats/beds/middle_by_polII_orig_erfs.bed ~/processing/stats/beds/bottom_by_polII_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+`arrajpur@crick:~/processing/metaplot/SplitByPolII/SMC5$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/SMC5.wig ~/processing/stats/beds/top_by_polII_AltERFs.bed ~/processing/stats/beds/middle_by_polII_AltERFs.bed ~/processing/stats/beds/bottom_by_polII_AltERFs.bed ~/processing/stats/beds/top_by_polII_orig_erfs.bed ~/processing/stats/beds/middle_by_polII_orig_erfs.bed ~/processing/stats/beds/bottom_by_polII_orig_erfs.bed top_AltERFs middle_AltERFs bottom_AltERFs top_OrigERFs middle_OrigERFs bottom_OrigERFs`
+
+* again, idiotic mistake. file is named AltMethodsERFs
+
+`arrajpur@crick:~/processing/metaplot/UniqueAndCommon/RNAseq$ screen srun -p bigmemh --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/RNAseq/HU_merge.wig ~/processing/stats/beds/AltMethodERFs_unique.bed ~/processing/stats/beds/AltMethodERFs_common.bed ~/processing/stats/beds/erfs_hotspots_unique.bed ~/processing/stats/beds/erfs_hotspots_common.bed AltERFs_unique AltERFs_common OrigERFs_unique OrigERFs_common`
+
+`arrajpur@crick:~/processing/metaplot/UniqueAndCommon/polII$ screen srun -p bigmemm --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/polII/polII.wig ~/processing/stats/beds/AltMethodERFs_unique.bed ~/processing/stats/beds/AltMethodERFs_common.bed ~/processing/stats/beds/erfs_hotspots_unique.bed ~/processing/stats/beds/erfs_hotspots_common.bed AltERFs_unique AltERFs_common OrigERFs_unique OrigERFs_common`
+
+`arrajpur@crick:~/processing/metaplot/UniqueAndCommon/RPA$ screen srun -p bigmeml --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/RPA.wig ~/processing/stats/beds/AltMethodERFs_unique.bed ~/processing/stats/beds/AltMethodERFs_common.bed ~/processing/stats/beds/erfs_hotspots_unique.bed ~/processing/stats/beds/erfs_hotspots_common.bed AltERFs_unique AltERFs_common OrigERFs_unique OrigERFs_common`
+
+`arrajpur@crick:~/processing/metaplot/UniqueAndCommon/BRCA1$ screen srun -p bigmeml --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/BRCA1.wig ~/processing/stats/beds/AltMethodERFs_unique.bed ~/processing/stats/beds/AltMethodERFs_common.bed ~/processing/stats/beds/erfs_hotspots_unique.bed ~/processing/stats/beds/erfs_hotspots_common.bed AltERFs_unique AltERFs_common OrigERFs_unique OrigERFs_common`
+
+`arrajpur@crick:~/processing/metaplot/UniqueAndCommon/SMC5$ screen srun -p bigmeml --cpus-per-task=25 ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds --window 5000 40000 ~/processing/metaplot/SMC5.wig ~/processing/stats/beds/AltMethodERFs_unique.bed ~/processing/stats/beds/AltMethodERFs_common.bed ~/processing/stats/beds/erfs_hotspots_unique.bed ~/processing/stats/beds/erfs_hotspots_common.bed AltERFs_unique AltERFs_common OrigERFs_unique OrigERFs_common`
+
+* making cor scatterplots
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_AltMethodERFs.mapwig BRCA1_map/BRCA1_AltMethodERFs.mapwig SMC5_map/SMC5_AltMethodERFs.mapwig AltERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_erfs_hotspots.mapwig BRCA1_map/BRCA1_erfs_hotspots.mapwig SMC5_map/SMC5_erfs_hotspots.mapwig OrigERFs`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_AltMethodERFs_unique.mapwig BRCA1_map/BRCA1_AltMethodERFs_unique.mapwig SMC5_map/SMC5_AltMethodERFs_unique.mapwig AltERFs_unique`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_AltMethodERFs_common.mapwig BRCA1_map/BRCA1_AltMethodERFs_common.mapwig SMC5_map/SMC5_AltMethodERFs_common.mapwig AltERFs_common`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_erfs_hotspots_unique.mapwig BRCA1_map/BRCA1_erfs_hotspots_unique.mapwig SMC5_map/SMC5_erfs_hotspots_unique.mapwig OrigERFs_unique`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_erfs_hotspots_common.mapwig BRCA1_map/BRCA1_erfs_hotspots_common.mapwig SMC5_map/SMC5_erfs_hotspots_common.mapwig OrigERFs_common`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_top_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_top_by_ChipSeq_AltERFs.mapwig AltERFS_top`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_middle_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_middle_by_ChipSeq_AltERFs.mapwig AltERFS_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_ChipSeq_AltERFs.mapwig BRCA1_map/BRCA1_bottom_by_ChipSeq_AltERFs.mapwig SMC5_map/SMC5_bottom_by_ChipSeq_AltERFs.mapwig AltERFS_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_ChipSeq_orig_erfs.mapwig OrigERFs_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_middle_by_ChipSeq_orig_erfs.mapwig OrigERFs_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_ChipSeq_orig_erfs.mapwig BRCA1_map/BRCA1_top_by_ChipSeq_orig_erfs.mapwig SMC5_map/SMC5_top_by_ChipSeq_orig_erfs.mapwig OrigERFs_top`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_top_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_top_by_RNAseq_AltERFs.mapwig AltERFS_top`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_middle_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_middle_by_RNAseq_AltERFs.mapwig AltERFS_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_RNAseq_AltERFs.mapwig BRCA1_map/BRCA1_bottom_by_RNAseq_AltERFs.mapwig SMC5_map/SMC5_bottom_by_RNAseq_AltERFs.mapwig AltERFS_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_RNAseq_orig_erfs.mapwig OrigERFs_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_middle_by_RNAseq_orig_erfs.mapwig OrigERFs_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_RNAseq_orig_erfs.mapwig BRCA1_map/BRCA1_top_by_RNAseq_orig_erfs.mapwig SMC5_map/SMC5_top_by_RNAseq_orig_erfs.mapwig OrigERFs_top`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_top_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_top_by_polII_AltMethodsERFs.mapwig AltERFS_top`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_middle_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_middle_by_polII_AltMethodsERFs.mapwig AltERFS_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_polII_AltMethodsERFs.mapwig BRCA1_map/BRCA1_bottom_by_polII_AltMethodsERFs.mapwig SMC5_map/SMC5_bottom_by_polII_AltMethodsERFs.mapwig AltERFS_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_bottom_by_polII_orig_erfs.mapwig BRCA1_map/BRCA1_bottom_by_polII_orig_erfs.mapwig SMC5_map/SMC5_bottom_by_polII_orig_erfs.mapwig OrigERFs_bottom`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_middle_by_polII_orig_erfs.mapwig BRCA1_map/BRCA1_middle_by_polII_orig_erfs.mapwig SMC5_map/SMC5_middle_by_polII_orig_erfs.mapwig OrigERFs_middle`
+
+`arrajpur@crick:~/processing/stats$ Rscript split_by_sample_scatter.R RPA_map/RPA_top_by_polII_orig_erfs.mapwig BRCA1_map/BRCA1_top_by_polII_orig_erfs.mapwig SMC5_map/SMC5_top_by_polII_orig_erfs.mapwig OrigERFs_top`
+
+
+* corr plots done. Yay outliers STILL HAVE AN EFFECT when you do pearson of log10! This is bad!
+
+* starting work with histone datasets
+
+`arrajpur@crick:~/histone$ mv GSM1180095_r080716_l4_aB_wt_H3K36me2.wig H3K36me2_rep1.wig`
+`arrajpur@crick:~/histone$ mv GSM1180111_r120328A_l3i4_aB_wt_H3K36me2.wig H3K36me2_rep2.wig`
+
+`arrajpur@crick:~/histone$ wget http://hgdownload.cse.ucsc.edu/goldenPath/mm9/encodeDCC/wgEncodeLicrHistone/wgEncodeLicrHistoneBcellcd43nH3k36me3MAdlt8wC57bl6StdSig.bigWig`
+
+`arrajpur@crick:~/histone$ wget http://hgdownload.cse.ucsc.edu/goldenPath/mm9/encodeDCC/wgEncodeLicrHistone/wgEncodeLicrHistoneBcellcd43nH3k27me3MAdlt8wC57bl6StdSig.bigWig`
+
+`arrajpur@crick:~/histone$ ~/bin/bigWigToWig wgEncodeLicrHistoneBcellcd43nH3k27me3MAdlt8wC57bl6StdSig.bigWig H3K27me3.wig`
+
+`arrajpur@crick:~/histone$ mv H3K27me3.wig H3K27me3.bedgraph`
+
+`arrajpur@crick:~/histone$ ~/bin/bigWigToWig wgEncodeLicrHistoneBcellcd43nH3k36me3MAdlt8wC57bl6StdSig.bigWig H3K36me3.wig`
+
+`arrajpur@crick:~/histone$ mv H3K36me3.wig H3K36me3.bedgraph`
+
+`arrajpur@crick:~/histone$ wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM1088nnn/GSM1088169/suppl/GSM1088169%5FBcell%2ECTCF%2EChIPseq%2Ebedgraph%2Egz`
+
+`arrajpur@crick:~/histone$ wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE60nnn/GSE60005/suppl/GSE60005_RAW.tar`
+

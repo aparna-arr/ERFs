@@ -1,0 +1,46 @@
+= Lab Notes 12.04.15 =
+
+== Notes ==
+* Finished PCA/LDA analysis + clustering, need significance test.
+* Working on pol2 pausing
+* using ratio/calculation from http://www.nature.com/ng/journal/v39/n12/full/ng.2007.26.html (see supplemental)
+* Basically, take the max signal at the TSS, divide by median signal over gene body
+
+* Define promoter as +- 750 bp (1500 bp total: from observation when making pol2 model) The paper uses a much smaller boundary
+* eliminate all genes < 1500 bp
+* eliminate all genes with an antisense gene
+* select only the longest transcript for each gene
+* Bins: 10bp or as limited by wig file bins
+* minimum genebody count is 1 (pseudocount) so we don't have to check before dividing
+* the closer the ratio is to the max_signal, the more poised the pol2 is at that gene
+* assign gene a % of poised-ness
+* (TSS_max / Genebody_median ) / TSS_max * 100
+* does this make sense? print out ratio and this percentage
+* The ratio should always be + and should never be 1! If it is 1, then genebody_median == TSS_max which makes no sense and does NOT show a summit at TSS
+* To solve this problem, the paper used only pol2 which showed enrichment over a random background using a microarray-specific model
+* I don't know how i will solve this but I guess I can just do ratio first and see what I get
+* Should I do C++? ...no
+* another problem: if no pol2 at a gene, the ratio can get really messed up
+* Maybe run another pol2 specific peak caller and throw out all genes -v
+* I really have to make a perl module ...
+
+* wrote script 
+`arrajpur@crick:~/processing/pol2_poised$ ./pol2_poised_index.pl `
+
+`arrajpur@crick:~/processing/pol2_poised$ cp ~/processing/yH2AX/mm9_clean_genes.bed .`
+
+* script is really slow so I wrote a script to split the genes file into chrs so I can run all chrs parallel
+
+`arrajpur@crick:~/processing/pol2_poised$ ./split_bed_by_chrs.pl mm9_clean_genes.bed `
+
+`arrajpur@crick:~/processing/pol2_poised$ mkdir chrs`
+`arrajpur@crick:~/processing/pol2_poised$ mv chr*bed chrs/`
+`# arrajpur@crick:~/processing/pol2_poised$ ./pol2_poised_index.pl mm9_clean_genes.bed ~/histone/wigs/polII.wig 100 1500 test.txt`
+
+`arrajpur@crick:~/processing/pol2_poised$ for f in chrs/* ; do srun -p bigmemh ./pol2_poised_index.pl $f ~/histone/wigs/polII.wig 100 1500 $f.out & ; done`
+
+* okay I optimized it (never dereference and assign wigs in subroutines! Use refs!)
+* but I discovered that the pol2 wig is enrichment ONLY over SICER peaks! WHY
+* Sicer is a horrible alg choice for pol2 peak calling
+* they are prob trying to hide the quality of their chip
+* also all my ratios are huge. going to add a pseudocount.

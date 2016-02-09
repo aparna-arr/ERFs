@@ -1,0 +1,170 @@
+= Lab Notes 10.29.15 =
+
+== Notes ==
+
+* Okay so there are a lot of artifacts--yay!
+* Many of them are encode blacklist so I will remove those
+* however, the idiotic heatmap C++ program can't deal with NAs
+* so we need a trickier method of dealing with it, or simply removing any final peaks that overlap
+* which is problematic, because there's a lot of little encode blacklisters and a lot of big peaks
+* other idea is Stella's which is to replace signal in wig files with NAs
+* But again, the lovely crashy heatmap program can't deal
+* R CAN deal, but we need to translate things???
+* We have 2 problems. We do not want to call peaks based on a blacklister, and we don't want that peak/signal to pop up in a metaplot/heatmap
+* Remove final peak if >50% overlaps with a blacklister, OR if <50% then cut out the blacklister from the peak
+* this will wreak havoc with the 1kb min requirement so it has to be done before that
+
+* wrote script blacklist.sh, in github/utilities
+
+* Wow:
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed 1`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ wc -l 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm`
+`14 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ wc -l 53BP1_AIDtr_RPA_M2P2_*1kbmin`
+`13 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin`
+
+* down from 59 ...
+* nevermind I am an idiot. Those are the numbers of peaks that DO have >50% overlap with the blacklist
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed 1`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ wc -l 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed*`
+  `59 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed`
+  `14 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklisted`
+  `45 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm`
+  `45 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin`
+
+* aaaand this is still wrong because I have not accounted for those peaks that still have some blacklist overlap ... (<50%)
+* wrote script cutPeaks.pl which works like bedtools intersect but on a -v set
+`arrajpur@crick:~/test_cutpeaks$ mv cutPeaks.pl ~/github/utilities/`
+
+* added to blacklist.sh
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed 1`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ../raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm`
+
+* that was a mistake--should have used 1kbmin. 
+* surprise--everything is crashing because the ORIGINAL aid file should have been blacklist-rm'd THEN preprocessed. I blacklist-rm'd the processed file and was trying to push it through heatmap.Cpp which expects a processed file.
+* well actually I didn't run it on a processed file but nevertheless it was not processed when it went through heatmap.cpp
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed 1`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' ../../raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin > tmp ; preprocess_bed_centered.pl tmp 5000 > 53BP1_AIDtr_RPA_blacklistrm_1kbmin_10kbprocessed.bed `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig 53BP1_AIDtr_RPA_blacklistrm_1kbmin_10kbprocessed.bed `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin RPA`
+
+* removing the blacklist dramatically changes the plots. Yay!
+* now I get to remake all of them
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_peaksplit.bed 0`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_AIDtr_RPA_M2P2_peaksplit.bed 0`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_RPA_broad_narrow$ mkdir blacklisted`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_RPA_broad_narrow$ mv * blacklisted/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_AIDtr_RPA_RPA_broad_narrow/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_53BP1_AIDtr_RPA_RPA_broad_narrow/ metaplot_53BP1_AIDtr_RPA_broad`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm RPA`
+* found a bug in cutPeaks yay!
+* but it's now fixed so REPEAT the broadpeak above
+
+* narrow
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm RPA`
+
+* metaplot-thread segfaulted probably because I forgot strand.
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm > 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand RPA`
+
+* it doesn't appear fully sorted .... (chr 4 where it segfaults):
+`chr4    139421660       139421709       +                                           `
+`chr4    149052580       149052739       +                                           `
+`chr4    154282790       154282830       +                                           `
+`chr4    155138040       155138059       +                                           `
+`chr4    20118990        20119030        +  `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm | sort -k 1,1 -k 2,2n > 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand`
+
+* and that fixed it
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mkdir metaplot_53BP1_AIDtr_RPA_narrow`
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_AIDtr_RPA_narrow/`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin | sort -k 1,1 -k 2,2n > 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand RPA`
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_AIDtr_RPA_broad/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand RPA`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ preprocess_bed_centered.pl ../../raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand 5000 > 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand.10kb`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ preprocess_bed_centered.pl ../../raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand 5000 > 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand.10kb`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AIDtr_RPA.wig 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand.10kb 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand.10kb `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand RPA`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ mv *10kb.* RPA_signal/53BP1_AIDtr/`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_1.bedgraph.wig 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand.10kb 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand.10kb `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mkdir metaplot_53BP1_AIDtr_2_yH2AX_RPA_broad`
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_AIDtr_2_yH2AX_RPA_broad`
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand RPA`
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mkdir metaplot_53BP1_AIDtr_2_yH2AX_RPA_narrow`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_AIDtr_2_yH2AX_RPA_narrow`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_AID_tr_2.bedgraph.wig 53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed.blacklistrm.1kbmin.strand.10kb 53BP1_AIDtr_RPA_M2P2_peaksplit.bed.blacklistrm.strand.10kb `
+
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ blacklist.sh 53BP1_RPA_peaksplit_M2P2.bed 0 `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm | sort -k 1,1 -k 2,2n > 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/raw$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' RPA_broadpeaks.bed.blacklistrm.1kbmin | sort -k 1,1 -k 2,2n > RPA_broadpeaks.bed.blacklistrm.1kbmin.strand`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ preprocess_bed_centered.pl ../../raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand 5000 >RPA_broadpeaks.bed.blacklistrm.1kbmin.strand.10kb`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ preprocess_bed_centered.pl ../../raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand 5000 > 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand.10kb`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin RPA `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig RPA_broadpeaks.bed.blacklistrm.1kbmin.strand.10kb 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand.10kb `
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_RPA_RPA_broad
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand RPA`
+
+* have to redo above 53BP1 RPA to RPA broad because forgot to use strand file
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_RPA_RPA_narrow/`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_RPA.wig ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_outfile.* metaplot_53BP1_RPA_RPA_broad`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig ~/processing/heatmap/heatmaps_clean/raw/RPA_broadpeaks.bed.blacklistrm.1kbmin.strand RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand RPA`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig ~/processing/heatmap/heatmaps_clean/raw/53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand RPA`
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig RPA_broadpeaks.bed.blacklistrm.1kbmin.strand.10kb 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand.10kb `
+
+`arrajpur@crick:~/processing/heatmap/heatmaps_clean/10kb/RPA$ heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig RPA_broadpeaks.bed.blacklistrm.1kbmin.strand.10kb 53BP1_RPA_peaksplit_M2P2.bed.blacklistrm.strand.10kb `
+
+* last heatmap done, copy to correct folder & add to presentation tomorrow                                         

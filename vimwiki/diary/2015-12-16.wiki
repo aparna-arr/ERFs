@@ -1,0 +1,19 @@
+= Lab Notes 12.16.15 =
+== Notes ==
+
+arrajpur@crick:~/processing/stats/gene_overlap_sim$ srun -p bigmemm --cpus-per-task=50 shuffle_genome.pl ~/gaps_mm9.gtf ~/processing/binning/mm9.chrom . 1000000 ../beds/AltMethodERFs.bed ../beds/mm9_clean_genes.bed alterfs_genes_shuffle.out
+
+# simulation vs genes
+> summary(sim$V1/1024185590*100)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  10.43   11.68   11.93   11.93   12.18   13.58 
+> 170563882/1024185590*100
+[1] 16.65361
+# simulation vs alt erfs
+> summary(sim$V1/297040932*100)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  35.97   40.28   41.13   41.15   42.00   46.84 
+> 170563882/297040932*100
+[1] 57.421
+> 
+

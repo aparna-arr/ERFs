@@ -1,0 +1,8 @@
+= Lab Notes 11.25.15 =
+
+== Notes ==
+* okay so collinear means I have some vars that corr ~1 or ~-1 which messes up the matrix LDA computes
+* secondly, my length is completely messed up
+* fixed length and can make plots now
+arrajpur@crick:~/processing/stats/LDA$ ./lda.pl ~/processing/stats/resplit/AltERFs/ top_by_ChIPseq_AltERFs middle_by_ChIPseq_AltERFs bottom_by_ChIPseq_AltERFs 
+* rscript is lda.R

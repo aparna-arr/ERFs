@@ -1,0 +1,25 @@
+= Lab Notes 12.17.15 =
+* [ ] ChromHMM
+* [ ] Pol2 poisednes remove genes ~2kb +- TSS or something
+* [ ] Remake bunch of graphs with new super blacklist removed datasets
+* [ ] Download new wigs for chromHMM
+* [ ] redo pol2 poisedness with better dataset
+* [ ] get groseq data
+* [ ] Think of better way to deal with CTCF mapping
+* [ ] make genome browser of all histones used in analysis to see if I can trust the peaks for any of them
+* [ ] LDA the new clusters
+* [ ] GO all genes then look at GOs for clusters, within/outside ERFs, etc
+* [ ] Add gene count to PCA/LDA/Hierarchical clustering
+
+== Notes ==
+
+* getting groseq data
+`arrajpur@crick:~/processing/pol2_poised/groseq$ wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM1524nnn/GSM1524919/suppl/GSM1524919%5FAID%5Fnaive%5Fmerge%2Enegative%2Ebw`
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM1524nnn/GSM1524919/suppl/GSM1524919%5FAID%5Fnaive%5Fmerge%2Epositive%2Ebw`
+
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ bigWigToWig GSM1524919_AID_naive_merge.negative.bw GSM1524919_AID_naive_merge.negative.wig`
+
+`arrajpur@crick:~/processing/pol2_poised/groseq$ bigWigToWig GSM1524919_AID_naive_merge.positive.bw GSM1524919_AID_naive_merge.positive.wig`
+

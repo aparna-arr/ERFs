@@ -1,0 +1,55 @@
+= Lab Notes 02.05.15 =
+
+== Notes ==
+
+* identify cell type specific genes for mouse b cell and check how many fall within ERFs
+	* Cell type specific == differential expression (RNAseq) in our cell type vs others
+	* Strategy: Download RNAseq for 4 other mouse cell types from ENCODE or something. Run DEseq using our NT RNAseq. Find genes which are differentially expressed in our cell type compared to all 4 others. 
+		* Check pol2 pausing (GROseq) at these genes
+		* Check whether more % of these genes fall in ERFs than expected
+	* DEseq HU vs NT for our cell type, and check if those diff. expressed genes for HU are also the cell type specific genes 
+		* check if those have more pausing also
+		* GO analysis
+	
+`arrajpur@crick:~$ mkdir ERFs_CellTypeSpecificity`
+* getting bam RNAseq files:
+* MEF:
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep1.txt.gz ./`
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep2.txt.gz ./`
+
+* BAT (brown adipose tissue):
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep1.txt.gz ./`
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep2.txt.gz ./`
+
+* Cortex
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeCshlLongRnaSeqCortexAdult8wksAlnRep1.txt.gz ./`
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeCshlLongRnaSeqCortexAdult8wksAlnRep2.txt.gz ./`
+
+* BMDM (bone marrow derived macrophages)
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep1.txt.gz ./`
+
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenPath/mm9/database/wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep2.txt.gz ./`
+
+* nvm those were all database files, not the real bams
+
+* real files:
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ ls`
+`wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep1.bam`
+`wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep1.bam.bai`
+`wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep2.bam`
+`wgEncodeLicrRnaSeqBatCellPapMAdult24wksC57bl6AlnRep2.bam.bai`
+`wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep1.bam`
+`wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep1.bam.bai`
+`wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep2.bam`
+`wgEncodeLicrRnaSeqBmdmCellPapFAdult8wksC57bl6AlnRep2.bam.bai`
+`wgEncodeLicrRnaSeqCortexCellPapMAdult8wksC57bl6AlnRep1.bam`
+`wgEncodeLicrRnaSeqCortexCellPapMAdult8wksC57bl6AlnRep1.bam.bai`
+`wgEncodeLicrRnaSeqCortexCellPapMAdult8wksC57bl6AlnRep2.bam`
+`wgEncodeLicrRnaSeqCortexCellPapMAdult8wksC57bl6AlnRep2.bam.bai`
+`wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep1.bam`
+`wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep1.bam.bai`
+`wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep2.bam`
+`wgEncodeLicrRnaSeqMefCellPapMAdult8wksC57bl6AlnRep2.bam.bai`
+
+`arrajpur@crick:~/ERFs_CellTypeSpecificity$ cp ~/raw-data/GSE43504/RNAseq/bams/*rep* .`
+

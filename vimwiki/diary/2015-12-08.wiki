@@ -1,0 +1,5 @@
+= Lab Notes 12.08.15 =
+== Notes ==
+
+`arrajpur@crick:~/processing/pol2_poised$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/RNAseq/NT_merge.wig mm9_clean_genes_poisedness.out `
+

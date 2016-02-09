@@ -1,0 +1,22 @@
+= Lab Notes 1.13.16 =
+
+== Notes ==
+* I have figured out that the proximity matrix is definitely a negative binomial distribution and there exist an R package to find Z scores in neg binom dists. Probably I can use this
+* Network communtiy algs are valid ways of clustering and I think they may actually be better because the graph alg field has been dealing with this sort of a problem for a while. Right now I am using fastgreedy. Modularity-score based algs historically have been no one's favorite even though they are frequently used but teh assumptions and cons do not hinder my type of data (mainly: cannot detect small clusters well. IDC)
+* So what it may look like is:
+* RandomForest to find prox matrix
+* Transform into weighted undirected graph
+* Use a network community detection alg to find clusters (fastgreedy right now)
+* Find significance of clusters based on proximity Z-scores or some graph alg statistic
+* DBscan sucks for this data
+* Spectral Clustering also sucks
+* 1million randomForest finishes in 1 day!
+* CLIQUE does not finish
+* maybe do some sort of edge reduction / sparsification before CLIQUE?
+* Won't CLIQUE not work because weighted, undirected, and one edge between EVERY node?
+* first I need to test how good hierarchical clustering results are compared to fastgreedy
+* so this shuffle has to finish then I have to run a fastgreedy shuffle with two clusters
+* this gives me chromHMM data
+* also look at the LDAs which are unlikely to show much of interest
+* also map everything and compare boxplots of everything wig file shaped
+* also do groseq comparison

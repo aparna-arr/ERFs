@@ -1,0 +1,158 @@
+= Lab Notes 09.22.15 =
+
+== Notes ==
+* All runs from yesterday finished.
+* for 53BP1_1 RPA, command was:
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot0$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_1.wig.tmp ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+* for 53BP1_2 RPA, command was 
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot1$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_2.wig.tmp ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+* for 53BP1_AIDtr_1 RPA, command was
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot2$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_AID_tr_1.bedgraph.wig.tmp ../../53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+* for 53BP1_AIDtr_2 RPA, command was
+arrajpur@crick:~/processing/yH2AX/metaplot/metaplot3$ srun -p bigmemm metaplot --preprocessBed 1 10000 ../wigs/53BP1_minus_AID_tr_2.bedgraph.wig.tmp ../../53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA
+* for smc5 monte carlo, it mapped everything but did not avg across row.
+* arrajpur@crick:~/processing/metaplot/monteCarlo/smc5$ srun -p bigmemm metaplot --readSplitBed splitbed/ --readSplitWig ../../ERFs/smc5_metaplot/wig_span100 --monteCarlo 100 --readAllBedsInDir beds 6000 ../../SMC5_span100.wig.tmp
+* Same for RPA montecarlo
+arrajpur@crick:~/processing/metaplot/monteCarlo/rpa$ srun -p bigmemm metaplot --readSplitBed splitbed/ --readSplitWig ../../ERFs/rpa_metaplot/wig_span100 --monteCarlo 100 --readAllBedsInDir beds 6000 ../../RPA_span100.wig.tmp
+* and BRCA1 montecarlo
+* SMC5 genes:
+arrajpur@crick:~/processing/metaplot/genes/smc5$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/smc5_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../SMC5.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+* RPA genes:
+arrajpur@crick:~/processing/metaplot/genes/rpa$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../RPA.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+* brca1 genes
+arrajpur@crick:~/processing/metaplot/genes/brca1$ srun -p bigmemm metaplot --readSplitWig ../../ERFs/brca1_metaplot/wig_span100 --readSplitBed ../../genes-split/ 6000 ../../BRCA1.wig.tmp ../../mm9_clean_genes.bed.tmp cleangenes
+
+* need to do metaplot of SMC5, BRCA1, RPA against old ERFs! (add as bed to AltErfs run)
+* BRCA1, SMC5, RPA on RPA peaks
+* yH2AX on genes
+* fix monte carlo
+* USE VERSIONING and note which version produced which graphs because of so much modification to metaplot code
+
+* fixed the Monte Carlo code
+* pushed VERSON 0.1 which was used for metaplots on this notes page above.
+* wrote script ~/github/metaplot_Cpp/avgMonteCarlo.pl to to horizontal row avg for those Monte Carlo runs where it just printed out but didn't run monteCarloMetaplot()
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/brca1$ avgMonteCarlo.pl metaplot_outfile.txt 
+arrajpur@crick:~/processing/metaplot/monteCarlo/rpa$ avgMonteCarlo.pl metaplot_outfile.txt 
+arrajpur@crick:~/processing/metaplot/monteCarlo/smc5$ avgMonteCarlo.pl metaplot_outfile.txt 
+* modified .R so it runs the new avg file in SMC5, RPA
+* at +2000 but also sometimes -2000 there appears to be a sharp peak on the simulation ...
+* possibility: 100 is too few (it finished overnight!) and window is too small. +-10KB might give a different profile. Also look at the y-axis--quite low numbers. Should plot the simulation result on same graph as normal: do them seperately, but cut-paste simulation avg column into normal run's outfile and adjust R script. These simulations were only 6kb.
+
+* Stella runs 125 x # peaks. 
+arrajpur@crick:~/processing/metaplot/monteCarlo$ wc -l ../AltMethodERFs.bed
+941 ../AltMethodERFs.bed
+arrajpur@crick:~/processing/metaplot/monteCarlo$ echo "941 * 125" | bc -l
+117625
+
+* that is a lot of runs ...
+
+arrajpur@crick:~/processing/metaplot/monteCarlo$ awk '{print $3 - $2}' ../AltMethodERFs.bed | awk '{sum+=$1} END {print sum/NR}'
+317019
+
+* chr2 is 181748087 bp long
+
+181748087/317019
+573.30345184358035322803
+
+* try 1000 runs, then go up by powers of 10 to see if it reduces bias but doesn't take forever to run
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/1000_altERFs$ for ((i = 0; i < 1000; i++)); do bedtools shuffle -excl ~/mm9_gaps.txt -chrom -i ../../AltMethodERFs.bed -g ~/processing/binning/mm9.chrom > shuffle_$i.bed ; done
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/brca1$ screen -S 1000_sim_brca1 srun -p bigmemm metaplot --preprocessBed 1 --readSplitWig ../../ERFs/brca1_metaplot/wig_span100/ --monteCarlo --readAllBedsInDir ../1000_altERFs/ 10000 ../../BRCA1_span100.wig.tmp 
+arrajpur@crick:~/processing/metaplot/monteCarlo/rpa$ screen -S 1000_sim_rpa srun -p bigmemm metaplot --preprocessBed 1 --readSplitWig ../../ERFs/rpa_metaplot/wig_span100/ --monteCarlo --readAllBedsInDir ../1000_altERFs/ 10000 ../../RPA_span100.wig.tmp 
+* cancelled above runs because they both try to process the same beds. 
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/smc5$ screen -S 1000_sim_smc5 srun -p bigmemm metaplot --readSplitWig ../../ERFs/smc5_metaplot/wig_span100/ --monteCarlo --readAllBedsInDir ../processed_1000_altERFs/ 10000 ../../SMC5_span100.wig.tmp 
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/smc5$ mkdir ../processed_1000_altERFs_split
+arrajpur@crick:~/processing/metaplot/monteCarlo/smc5$ cp *.bed ../processed_1000_altERFs_split/
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/brca1$ screen -S 1000_sim_brca1 srun -p bigmemm metaplot --readSplitWig ../../ERFs/brca1_metaplot/wig_span100/ --readSplitBed ../processed_1000_altERFs_split/ --monteCarlo --readAllBedsInDir ../processed_1000_altERFs/ 10000 ../../BRCA1_span100.wig.tmp 
+
+arrajpur@crick:~/processing/metaplot/monteCarlo/rpa$ screen -S 1000_sim_rpa srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100/ --readSplitBed ../processed_1000_altERFs_split/ --monteCarlo --readAllBedsInDir ../processed_1000_altERFs/ 10000 ../../RPA_span100.wig.tmp 
+
+* copied over erfs_hotspots.bed to ~/processing/metaplot/
+
+arrajpur@crick:~$ cp erfs_hotspots.bed processing/metaplot/
+
+* BRCA1, RPA, SMC5 ERFs metaplot:
+* 10KB +- 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ screen -S brca1_erfs_metaplot srun -p bigmemm metaplot --preprocessBed 1 --readSplitWig wig_span100/ 20000 ../../BRCA1_span100.wig.tmp ../../AltMethodERFs.bed ../../erfs_hotspots.bed altERFs origERFs
+
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ screen -S rpa_erfs_metaplot srun -p bigmemm metaplot --preprocessBed 1 --readSplitWig wig_span100/ 20000 ../../RPA_span100.wig.tmp ../../AltMethodERFs.bed ../../erfs_hotspots.bed altERFs origERFs
+
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ screen -S smc5_erfs_metaplot srun -p bigmemm metaplot --preprocessBed 1 --readSplitWig wig_span100/ 20000 ../../SMC5_span100.wig.tmp ../../AltMethodERFs.bed ../../erfs_hotspots.bed altERFs origERFs
+
+* need to corr plot the yH2AX to check reps and determine if a merge is possible
+
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot0/*wig.bed 53BP1_1_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot1/*wig.bed 53BP1_2_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot3/*wig.bed 53BP1_AIDtr_1_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv 53BP1_AIDtr_1_split_wig/ 53BP1_AIDtr_2_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mkdir 53BP1_AIDtr_1_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot2/*wig.bed 53BP1_AIDtr_2_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot2/*wig.bed 53BP1_AIDtr_2_split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv 53BP1_AIDtr_2_split_wig/ 53BP1_AIDtr_1_split_wig/
+
+* AIDtr 2 needs to be re-split now, accidentally overwrote
+
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_1_genes$ screen -S 53BP1_1_genes srun -p bigmemm metaplot --readSplitWig ../../53BP1_1_split_wig/ --readSplitBed ../../split_cleangenes/ 6000 ../../wigs/53BP1_minus_1.wig.tmp ../../mm9_clean_genes_TSS6kb.bed genes
+
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_2_genes$ screen -S 53BP1_2_genes srun -p bigmemm metaplot --readSplitWig ../../53BP1_2_split_wig/ --readSplitBed ../../split_cleangenes/ 6000 ../../wigs/53BP1_minus_2.wig.tmp ../../mm9_clean_genes_TSS6kb.bed genes
+
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_AIDtr_1_genes$ screen -S 53BP1_AIDtr_1_genes srun -p bigmemm metaplot --readSplitWig ../../53BP1_AIDtr_1_split_wig/ --readSplitBed ../../split_cleangenes/ 6000 ../../wigs/53BP1_minus_AID_tr_1.bedgraph.wig.tmp ../../mm9_clean_genes_TSS6kb.bed genes
+
+arrajpur@crick:~/processing/yH2AX/metaplot/genes/53BP1_AIDtr_2_genes$ screen -S 53BP1_AIDtr_2_genes srun -p bigmemm metaplot --readSplitBed ../../split_cleangenes/ 6000 ../../wigs/53BP1_minus_AID_tr_2.bedgraph.wig.tmp ../../mm9_clean_genes_TSS6kb.bed genes
+
+* brca1 to RPA peaks
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ screen -S brca1_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/brca1_metaplot/wig_span100/ 6000 ../../BRCA1_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ screen -S rpa_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100/ 6000 ../../RPA_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/smc5$ screen -S rpa_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100/ 6000 ../../RPA_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/smc5$ screen -S smc5_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/smc5_metaplot/wig_span100/ 6000 ../../SMC5_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin_centered.bed RPA
+
+* mapping 53BP1_1 to 10kb windows across genome in preparation for corr plot
+arrajpur@crick:~$ perl -I /home/mitochi/bin /home/mitochi/bin/map_wig_to_bed_BIG.pl -r cache/ -m -w processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig windows_10k_3col.bed 
+
+* Some runs finished!
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/RPA_peaks/smc5$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/RPA_peaks/rpa$ R --no-save < metaplot_outfile.R 
+
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ R --no-save < metaplot_outfile.R 
+
+* old ERFs is so low it should be done alone JUST in case
+
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cut -f 1,3 metaplot_outfile.txt > oldERFs_metaplot_outfile.txt
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ less oldERFs_metaplot_outfile.txt 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ cp metaplot_outfile.R oldERFs_metaplot_outfile.R 
+arrajpur@crick:~/processing/metaplot/ERFs/brca1_metaplot$ vim oldERFs_metaplot_outfile.R
+
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ cut -f 1,3 metaplot_outfile.txt > oldERFs_metaplot_outfile.txt
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ cp metaplot_outfile.R oldERFs_metaplot_outfile.R
+arrajpur@crick:~/processing/metaplot/ERFs/rpa_metaplot$ R --no-save < oldERFs_metaplot_outfile.R 
+
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ cut -f 1,3 metaplot_outfile.txt > oldERFs_metaplot_outfile.txt
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ cp metaplot_outfile.R oldERFs_metaplot_outfile.R
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ vim oldERFs_metaplot_outfile.R
+arrajpur@crick:~/processing/metaplot/ERFs/smc5_metaplot$ R --no-save < oldERFs_metaplot_outfile.R 
+
+* Need to run a heatmap to see if this is signal on both sides of every peak or there are classes of peaks with signal on one side or the other of the center--may be strand effect!
+
+* getting unprocessed RPA peaks so I can do +- 10kb
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3}' ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/RPA_peaksplit_WCE_result.xls | bedtools intersect -u -a ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/map_peaksplit_back_to_broadpeak/broadpeak_RPA_peaksplit_WCE_result.xls -b - | awk '{if ($3 - $2 > 1000) print;}' > RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/rpa$ screen -S rpa_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/rpa_metaplot/wig_span100/ 20000 ../../RPA_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed.tmp RPA
+
+
+arrajpur@crick:~/processing/metaplot/RPA_peaks/brca1$ screen -S brca1_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/brca1_metaplot/wig_span100/ --preprocessBed 1 20000 ../../BRCA1_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed RPA
+arrajpur@crick:~/processing/metaplot/RPA_peaks/smc5$ screen -S smc5_RPA srun -p bigmemm metaplot --readSplitWig ../../ERFs/smc5_metaplot/wig_span100/ 20000 ../../SMC5_span100.wig.tmp ../../RPA_peaks_M2P2_mapToBroadpeak_1kbmin.bed.tmp RPA
+

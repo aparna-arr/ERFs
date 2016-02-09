@@ -1,0 +1,146 @@
+= Lab Notes 11.5.15 =
+
+== Notes ==
+* What?! OrigERFs split by RNAseq maintain same corr values!
+* Do AltERFs split into ~200-peak categories also
+
+* mapping split-by-RNAseq origERFs to RNAseq 
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig top_by_RNAseq_orig_erfs.bed middle_by_RNAseq_orig_erfs.bed bottom_by_RNAseq_orig_erfs.bed `
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_erfs_hotspots.mapwig | paste RPA_erfs_hotspots.mapwig - > tmp ; cut -f 4 SMC5_erfs_hotspots.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_OrigERFs.mapwig`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_OrigERFs.mapwig | head -n 206 | sort -k 1,1 -k 2,2n > top_by_ChipSeq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_OrigERFs.mapwig | tail -n 206 | sort -k 1,1 -k 2,2n > bottom_by_ChipSeq_orig_erfs.bed`
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr -k 5,5nr -k 6,6nr RPA_BRCA1_SMC5_on_OrigERFs.mapwig | head -n 413 | tail -n 207 | sort -k 1,1 -k 2,2n > middle_by_ChipSeq_orig_erfs.bed`
+
+* RNAseq boxplots of split-by-RNAseq origERFs look like they're overlapping. Tested the file split and it looks like it was made correctly:
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | head -n 206 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > tmp_top`
+
+`arrajpur@crick:~/processing/stats$ diff tmp_top top_by_RNAseq_orig_erfs.bed `
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | tail -n 206 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > tmp_bottom`
+
+`arrajpur@crick:~/processing/stats$ diff tmp_bottom bottom_by_RNAseq_orig_erfs.bed `
+
+`arrajpur@crick:~/processing/stats$ sort -k 4,4nr HU_merge_erfs_hotspots.mapwig | head -n 413 | tail -n 207 | sort -k 1,1 -k 2,2n | awk '{print $1 "\t" $2 "\t" $3}' > tmp_middle`
+
+`arrajpur@crick:~/processing/stats$ diff tmp_middle middle_by_RNAseq_orig_erfs.bed `
+
+`206 + 206 + 207`
+`619`
+
+* and there does not appear to be PEAK overlap:
+`arrajpur@crick:~/processing/stats$ bedtools intersect -a top_by_RNAseq_orig_erfs.bed -b middle_by_RNAseq_orig_erfs.bed | wc -l`
+`0`
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -a top_by_RNAseq_orig_erfs.bed -b bottom_by_RNAseq_orig_erfs.bed | wc -l`
+`0`
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -a middle_by_RNAseq_orig_erfs.bed -b bottom_by_RNAseq_orig_erfs.bed | wc -l`
+`0`
+
+* so ... maybe log is just weird???
+
+* what:
+`> summary(top)`
+   `Min. 1st Qu.  Median    Mean 3rd Qu.    Max. `
+  `3.205  15.980  23.860  43.020  38.050 532.400 `
+`> summary(middle)`
+   `Min. 1st Qu.  Median    Mean 3rd Qu.    Max. `
+  `1.878   5.546   8.162   9.594  11.940  55.860 `
+`> summary(bottom)`
+   `Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's `
+  `1.000   1.609   2.279   2.900   3.598  11.190       4 `
+
+* ???
+* remapping ...
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig tmp_top tmp_middle tmp_bottom `
+
+`arrajpur@crick:~/processing/stats$ diff HU_merge_tmp_top.mapwig HU_merge_top_by_RNAseq_orig_erfs.mapwig `
+
+* no diff ... remapping all orig erfs
+`arrajpur@crick:~/processing/stats$ cp ~/erfs_hotspots.bed tmp_all_orig_erfs`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig tmp_all_orig_erfs `
+
+`arrajpur@crick:~/processing/stats$ diff HU_merge_tmp_all_orig_erfs.mapwig HU_merge_erfs_hotspots.mapwig `
+* huge output from diff! what on earth
+* can't find the notes where I originally mapped erfs ...
+* could I have mapped polII by mistake or something? The file says HU_merge ...
+* I'M AN IDIOT. -m!!! I forgot freaking -m!
+* Original file is correct and I'm going to go redo mapping on split-by-RNAseq now ...
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig top_by_RNAseq_orig_erfs.bed middle_by_RNAseq_orig_erfs.bed bottom_by_RNAseq_orig_erfs.bed `
+
+* And it's correct now
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -m -r /home/arrajpur/cache/ -w ~/polII/RNAseq/HU_merge.wig top_by_ChipSeq_orig_erfs.bed middle_by_ChipSeq_orig_erfs.bed bottom_by_ChipSeq_orig_erfs.bed `
+
+* wrote R script to do corr plots because it's really annoying
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R [ARGS]`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_top_by_RNAseq_AltERFs.mapwig | paste RPA_top_by_RNAseq_AltERFs.mapwig - > tmp ; cut -f 4 SMC5_top_by_RNAseq_AltERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_AltERFs_top_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_middle_by_RNAseq_AltERFs.mapwig | paste RPA_middle_by_RNAseq_AltERFs.mapwig - > tmp ; cut -f 4 SMC5_middle_by_RNAseq_AltERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_AltERFs_middle_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_bottom_by_RNAseq_AltERFs.mapwig | paste RPA_bottom_by_RNAseq_AltERFs.mapwig - > tmp ; cut -f 4 SMC5_bottom_by_RNAseq_AltERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_AltERFs_bottom_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_top_by_RNAseq_orig_erfs.mapwig | paste RPA_top_by_RNAseq_orig_erfs.mapwig - > tmp ; cut -f 4 SMC5_top_by_RNAseq_orig_erfs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_OrigERFS_top_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_middle_by_RNAseq_orig_erfs.mapwig | paste RPA_middle_by_RNAseq_orig_erfs.mapwig - > tmp ; cut -f 4 SMC5_middle_by_RNAseq_orig_erfs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_OrigERFS_middle_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_bottom_by_RNAseq_orig_erfs.mapwig | paste RPA_bottom_by_RNAseq_orig_erfs.mapwig - > tmp ; cut -f 4 SMC5_bottom_by_RNAseq_orig_erfs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_OrigERFS_bottom_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R RPA_BRCA1_SMC5_on_OrigERFS_top_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_OrigERFS_middle_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_OrigERFS_bottom_by_RNAseq.mapwig `
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_erfs_hotspots.mapwig | paste RPA_erfs_hotspots.mapwig - > tmp ; cut -f 4 SMC5_erfs_hotspots.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_erfs_hotspots.bed`
+
+* modified Rscript to deal with only one file
+
+`arrajpur@crick:~/processing/stats$ Rscript cor_plot_single.R RPA_BRCA1_SMC5_on_AltERFs.mapwigLoading required package: methods`
+
+`arrajpur@crick:~/processing/stats$ Rscript cor_plot_single.R RPA_BRCA1_SMC5_on_erfs_hotspots.bed `
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/RPA.wig ../top_Alt_ERFs.bed ../middle_Alt_ERFs.bed ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/SMC5.wig ../top_Alt_ERFs.bed ../middle_Alt_ERFs.bed ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/BRCA1.wig ../top_Alt_ERFs.bed ../middle_Alt_ERFs.bed ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_top_Alt_ERFs.mapwig | paste RPA_top_Alt_ERFs.mapwig - > tmp ; cut -f 4 SMC5_top_Alt_ERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_top_AltERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_middle_Alt_ERFs.mapwig | paste RPA_middle_Alt_ERFs.mapwig - > tmp ; cut -f 4 SMC5_middle_Alt_ERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_middle_AltERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ cut -f 4 BRCA1_bottom_Alt_ERFs.mapwig | paste RPA_bottom_Alt_ERFs.mapwig - > tmp ; cut -f 4 SMC5_bottom_Alt_ERFs.mapwig | paste tmp - > RPA_BRCA1_SMC5_on_bottom_AltERFs.bed`
+
+* ... okay that map was pointless.
+* correct corr to use is pearson of the log10
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R ../top_Alt_ERFs.bed ../middle_Alt_ERFs.bed ../bottom_Alt_ERFs.bed`
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R top_by_ChipSeq_orig_erfs.bed middle_by_ChipSeq_orig_erfs.bed bottom_by_ChipSeq_orig_erfs.bed `
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R RPA_BRCA1_SMC5_on_OrigERFS_top_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_OrigERFS_middle_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_OrigERFS_bottom_by_RNAseq.mapwig`
+
+`arrajpur@crick:~/processing/stats$ Rscript corr_plot.R RPA_BRCA1_SMC5_on_AltERFs_top_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_AltERFs_middle_by_RNAseq.mapwig RPA_BRCA1_SMC5_on_AltERFs_bottom_by_RNAseq.mapwig `
+
+* mapping polII
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/polII.wig ~/erfs_hotspots.bed ~/processing/metaplot/AltMethodERFs.bed.blacklistrm.1kbmin`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/polII.wig ../top_Alt_ERFs.bed.sort ../middle_Alt_ERFs.bed.sort ../bottom_Alt_ERFs.bed.sort`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ~/polII/polII.wig top_by_ChipSeq_orig_erfs.bed.3col middle_by_ChipSeq_orig_erfs.bed.3col bottom_by_ChipSeq_orig_erfs.bed.3col `
+
+* getting histone datasets
+* H3K36me2
+`arrajpur@crick:~/histone$ [[wget]] ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM1180nnn/GSM1180095/suppl/GSM1180095%5Fr080716%5Fl4%5FaB%5Fwt%5FH3K36me2%2Ewig%2Egz`
+
+`arrajpur@crick:~/histone$ wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM1180nnn/GSM1180111/suppl/GSM1180111%5Fr120328A%5Fl3i4%5FaB%5Fwt%5FH3K36me2%2Ewig%2Egz`
+
+
+

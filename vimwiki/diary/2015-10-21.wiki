@@ -1,0 +1,91 @@
+= Lab Notes 10.21.15 =
+
+== Notes ==
+* making heatmap
+> library(stats)
+> summary(as.vector(matrix))
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+     0.00      2.00      4.48     19.42      8.93 100200.00 
+> library(RColorBrewer)
+> my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+> col_breaks = c( seq(0, 2, length=100), seq(2, 4, length=100), seq(4, 9, length=100), seq(9,20, length=100), seq(20,50, length=100))
+> my_palette <- colorRampPalette(c("red", "yellow", "green", "blue", "purple"))(n = 499)
+> png(heatmap.png)
+Error in gsub("%%", "", s) : object 'heatmap.png' not found
+> png("heatmap.png")
+> heatmap.2(matrix, cellnote=matrix, main="test", notecol="black", density.info="none", trace="none", col=my_palette, breaks=col_breaks, dendrogram="row", Colv="NA")
+Error: could not find function "heatmap.2"
+> library(gplots)
+
+Attaching package: ‘gplots’
+
+The following object is masked from ‘package:stats’:
+
+    lowess
+
+> heatmap.2(matrix, cellnote=matrix, main="test", notecol="black", density.info="none", trace="none", col=my_palette, breaks=col_breaks, dendrogram="row", Colv="NA")
+
+* whoa metaplot-thread was crashing on simulation beds, but catting them into one file and it ran in < 2 mins! Note: did not sort so I'm going to sort now an dcheck again. I catted the tmpfiles aka the processed beds.
+
+`arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ for f in tmpbeds/*; do cat $f >> combofile.tmp ; sort -k 1,1 -k 2,2n combofile.tmp > combo/combofile.bed; done`
+
+`arrajpur@crick:~/github/metaplot_Cpp/threading/test/1$ for i in {0..10000} ; do bedtools shuffle -chrom -i ../0/RPA.bed -g ~/processing/binning/mm9.chrom > 10k_sims/shuffle_$i.bed ; done`
+
+`arrajpur@crick:~/github/metaplot_Cpp/threading/test/1$ for f in 10k_sims/*; do cat $f >> combo10k.tmp ; done`
+
+`arrajpur@crick:~/github/metaplot_Cpp/threading/test/1$ sort -k 1,1 -k 2,2n combo10k.tmp > combo10k.bed`
+
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ srun -p bigmemh --cpus-per-task=50 --exclusive ../../metaplot-thread --monteCarlo --readAllBedsInDir combo/ --readSplitWig wigsplit/ --threadChroms --inputChrs common_chrs.txt --threadBeds 1 --threadDivisions 10 10000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig 
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/1$ srun -p bigmemh --cpus-per-task=50 --exclusive ../../metaplot-thread --preprocessBed 1 --readSplitWig ../0/wigsplit/ --threadChroms --threadBeds 1 20000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig combo10k.bed 10ksimRPA
+rrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 20000 ../wigs/53BP1_minus_1.wig ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed RPA_broad
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mkdir split_wig
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv *wig.bed split_wig/
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv split_wig/ 53BP1_1_wig
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mkdir metaplot_53BP1_1_yH2AX_RPA
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ mv metaplot_* metaplot_53BP1_1_yH2AX_RPA/
+* worked!
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 20000 ../wigs/53BP1_minus_1.wig ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed ~/processing/heatmap/53BP1_RPA_M2P2_peaksplit_processed.bed RPA_broad RPA_narrow
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig heatmap.R 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig heatmap.R 53BP1_RPA_broadpeakmap_processed_1k.bed 53BP1_RPA_M2P2_peaksplit_processed_1k.bed
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 20000 ../wigs/53BP1_minus_2.wig ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed ~/processing/heatmap/53BP1_RPA_M2P2_peaksplit_processed.bed RPA_broad RPA_narrow
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 20000 ../wigs/53BP1_minus_RPA.wig ../../53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed ~/processing/heatmap/53BP1_RPA_M2P2_peaksplit_processed.bed RPA_broad RPA_narrow
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig heatmap.R 53BP1_RPA_broadpeakmap_processed.bed 53BP1_RPA_M2P2_peaksplit_processed.bed
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 0 --threadChroms --threadBeds 1 10000 ../wigs/53BP1_minus_1.wig ../../mm9_clean_genes.bed genes
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 0 --threadChroms --threadBeds 1 10000 ../wigs/53BP1_minus_2.wig ../../mm9_clean_genes.bed genes
+
+arrajpur@crick:~/processing/yH2AX/MAnorm/53BP1_AIDtr_RPA$ awk '{if (($4 == "unique_peak1" || $4 == "common_peak1") && $7 > 2 && $9 > 2) print $1 "\t" $2 "\t" $3;}' MAnorm_result.xls > 53BP1_AIDtr_RPA_M2P2_peaksplit.bed
+
+arrajpur@crick:~/processing/yH2AX/metaplot$ cp ../MAnorm/53BP1_AIDtr_RPA/53BP1_AIDtr_RPA_M2P2_peaksplit.bed .
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 1 --threadChroms --threadBeds 1 20000 ../wigs/53BP1_minus_AID_tr_1.bedgraph.wig ../../53BP1_AIDtr_RPA_M2P2_broadpeak-map-back_1kbmin.bed ../53BP1_AIDtr_RPA_M2P2_peaksplit.bed RPA_broad RPA_narrow
+
+arrajpur@crick:~/processing/yH2AX/metaplot/threaded$ srun -p bigmemh --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --preprocessBed 0 --threadChroms --threadBeds 1 10000 ../wigs/53BP1_minus_AID_tr_2.bedgraph.wig ../../mm9_clean_genes.bed genes
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_2.wig heatmap.R 53BP1_RPA_broadpeakmap_processed_1k.bed 53BP1_RPA_M2P2_peaksplit_processed_1k.bed
+
+arrajpur@crick:~/processing/heatmap$ grep + ../yH2AX/mm9_clean_genes.bed > plus_mm9_clean_genes.bed
+
+arrajpur@crick:~/processing/heatmap$ grep - ../yH2AX/mm9_clean_genes.bed > minus_mm9_clean_genes.bed
+
+arrajpur@crick:~/processing/heatmap$ preprocess_bed.pl plus_mm9_clean_genes.bed 5000 > plus_mm9_clean_genes_processed_10kb.bed 
+
+arrajpur@crick:~/processing/heatmap$ preprocess_bed.pl minus_mm9_clean_genes.bed 5000 > minus_mm9_clean_genes_processed_10kb.bed 
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 1000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig heatmap.R plus_mm9_clean_genes_processed_10kb.bed minus_mm9_clean_genes_processed_10kb.bed 
+
+arrajpur@crick:~/processing/heatmap$ preprocess_bed.pl minus_mm9_clean_genes.bed 500 > minus_mm9_clean_genes_processed_1kb.bed 
+arrajpur@crick:~/processing/heatmap$ preprocess_bed.pl plus_mm9_clean_genes.bed 500 > plus_mm9_clean_genes_processed_1kb.bed 
+
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 100 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig heatmap.R plus_mm9_clean_genes_processed_1kb.bed minus_mm9_clean_genes_processed_1kb.bed 
+
+* going to try a gentler smooth
+arrajpur@crick:~/processing/heatmap$ ./heatmap.sh 10 1 100 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig heatmap.R plus_mm9_clean_genes_processed_1kb.bed minus_mm9_clean_genes_processed_1kb.bed 
+

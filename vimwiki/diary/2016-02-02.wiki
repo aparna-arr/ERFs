@@ -1,0 +1,20 @@
+= Lab Notes 02.02.16 =
+
+== Notes ==
+
+* gro-seq of clusters
+
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/clus_compare_1milRF$ ls`
+`network  tree`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/poisedness_genes_split_by_cluster$ cp groseq_positive_poisedness.out groseq_negative_poisedness.out ../clus_compare_1milRF/`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots$ cp barplot_groseq_clusters.R clus_compare_1milRF/`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/clus_compare_1milRF/network$ mkdir peaks `
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/clus_compare_1milRF/network$ mkdir ../tree/peaks`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/clus_compare_1milRF/tree$ cp ~/processing/stats/LDA/cluster_compare/tree/clus* peaks/`
+`arrajpur@crick:~/processing/pol2_poised/cluster_barplots/clus_compare_1milRF/tree$ cp ~/processing/stats/LDA/cluster_compare/tree/clus* peaks/`
+
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ cp ../pca_randomForest2.R plots_after_rf_matrix.R`
+
+`arrajpur@crick:~/processing/stats/LDA/cluster_compare$ Rscript plots_after_rf_matrix.R `
+

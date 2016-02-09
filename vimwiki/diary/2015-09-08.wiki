@@ -1,0 +1,135 @@
+= Lab Notes 09.08.15 =
+
+[[notes.sh]] for lab notes ranging from 08.21.15 - 09.04.15
+
+CTRL-SPACE toggles checkboxes
+
+== To Do ==
+- [X] Download yH2AX data and begin processing.
+- [X] Re-examine ERFs called and generate statistics
+- [X] Read Mouse email, plan which mice to keep
+	- [X] Check genotypes and enter into Quartzy
+	- [X] Make index/inventory of mice
+- [X] Move CH12s into proper box in -80
+- [ ] Update graphical lab notebook
+
+== Notes ==
+
+* Transfering over potential yH2AX datasets
+
+| Info       | 53BP1 -/- AIDtr | AIDtr only     |
+|------------|-----------------|----------------|
+| Col        | 33I, 33L        | 39M, 31L       |
+| Datestring | 110505          | 110628, 110304 |
+| Lane       | 4,7             | 8,7            |
+
+* Even though there are 2 datasets per treat, DO NOT merge. Especially the *AIDtr only* is very different than *AID KO*
+
+`arrajpur@crick:~/110505-jackie$ tar xvjf extra.tar.bz2`
+`arrajpur@crick:~/110628-jackie$ tar xvjf extra.tar.bz2`
+`arrajpur@crick:~/110304-jackie$ tar xjvf fq36.tar.bz2`
+
+* Made dir `~/raw-data/yH2AX` for yH2AX processing.
+
+* 33I
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_4_sequence.txt 53BP1_minus_AID_tr_1.txt`
+
+* 33L
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110505-jackie/fq36/s_7_sequence.txt 53BP1_minus_AID_tr_2.txt`
+
+* 31L
+
+`arrajpur@crick:~/raw-data/yH2AX$ cp ~/110304-jackie/fq36/s_7_sequence.txt AID_KO.txt`
+
+* In 110628-jackie there are 2 folders: fastq/ and fq36/. fq36/s_8_sequence.txt and fastq/s_8_sequence.txt have the same length by wc -l but different content by diff. Going to use fq36/ since all other samples only have a fq36 folder.
+
+`arrajpur@crick:~/110628-jackie$ cp fq36/s_8_sequence.txt ~/raw-data/yH2AX/AID_tr.txt`
+
+* Trimming adaptors
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AID_tr_1.txt > 53BP1_minus_AID_tr_1.txt.trim `
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AID_tr_2.txt > 53BP1_minus_AID_tr_2.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa AID_KO.txt > AID_KO.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ /home/mitochi/bin/fastq-mcf -C 10000000 -u -x 0.01 -q 25 /home/mitochi/Dataset/adaptors_list.fa 53BP1_minus_AID_tr_1.txt AID_tr.txt > AID_tr.txt.trim`
+
+* Making batch files for mapping runs
+
+`arrajpur@crick:~/raw-data/yH2AX$ makebatch.pl map cmd.txt . 53BP1_minus_AID_tr_1.txt.trim 53BP1_minus_AID_tr_2.txt.trim AID_KO.txt.trim AID_tr.txt.trim`
+
+`arrajpur@crick:~/raw-data/yH2AX$ sbatch -p bigmemm map_0.sh `
+`arrajpur@crick:~/raw-data/yH2AX$ sbatch -p bigmemm map_1.sh `
+`arrajpur@crick:~/raw-data/yH2AX$ sbatch -p bigmemm map_2.sh `
+`arrajpur@crick:~/raw-data/yH2AX$ sbatch -p bigmemm map_3.sh `
+ 
+* Found mistake in stats.sh again (yay!). Premerge sort and merge step is too late. It is only in the IF, but I need it in the ELSE too, because if this is the first file we are working on, we need it 5kb merged too. 
+* Fixed in 5kb premerge 300kb postmerge 10kbmin ONLY
+
+`arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ ./stats.sh`
+
+* Should generalize stats.sh so it can go on github
+
+`arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ R --no-save < makegraphs.R`
+
+* Aaaand it appears that tiny error is making a HUGE difference in statistics ...
+* The numbers are way down ( < 1000) but this is closer to what the ERFs are really like right?
+* Going to look at M2P2, which appears most promising.
+* Going to work on modifying stats.sh so we can output sane outfile names to test all this properly, now that I need to retest everything
+
+`arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ mkdir ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh`
+
+`arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/peaksplit/5kb_preint_merge/300kb_post_10kb_min$ cp stats.sh ~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh/`
+
+* I want to test:
+	- 5kb pre, 5kb post, min 1kb
+	- 5kb pre, 10kb post, min 1kb
+	- 10 kb pre, 10kb post, min 1kb
+	- 5kb pre, 300kb post, min 10kb
+	- 10kb pre, 300kb post, min 20kb
+ 
+`arrajpur@crick:~/AltMethodErfs/DESeq_norm/MAnorm/out/erf_analysis/change_stats_sh$ ./runstats.sh` 
+
+* *Decision*: Pre 5kb, Post 300kb, min 1kb. This balances ERF overlap with specificity of overlap, and allows us to catch more ERFs than min 10kb without a lot of false positives.
+
+* Continuing with yH2AX processing
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/read_depth.pl 10 1 ../sam/53BP1_minus_AID_tr_1.txt.trim.sam > 53BP1_minus_AID_tr_1.bedgraph`
+
+Average read count per bin was 0.13
+Max read count observed was in bin * 0-9: 592757 reads
+89.48%  of bins had zero read counts
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/read_depth.pl 10 1 ../sam/53BP1_minus_AID_tr_2.txt.trim.sam > 53BP1_minus_AID_tr_2.bedgraph`
+
+Average read count per bin was 0.05
+Max read count observed was in bin * 0-9: 649667 reads
+95.81%  of bins had zero read counts
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/read_depth.pl 10 1 ../sam/AID_KO.txt.trim.sam > AID_KO.bedgraph`
+
+Average read count per bin was 0.07
+Max read count observed was in bin * 0-9: 1809010 reads
+96.72%  of bins had zero read counts
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/read_depth.pl 10 1 ../sam/AID_tr.txt.trim.sam > AID_tr.bedgraph`
+
+Average read count per bin was 0.10
+Max read count observed was in bin * 0-9: 1688438 reads
+92.39%  of bins had zero read counts
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/clean_bedgraphs.pl 53BP1_minus_AID_tr_1.bedgraph 53BP1_AIDtr_1 ../binning/mm9.chrom`
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/clean_bedgraphs.pl 53BP1_minus_AID_tr_2.bedgraph 53BP1_AIDtr_2 ../binning/mm9.chrom`
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/clean_bedgraphs.pl AID_KO.bedgraph AID_KO ../binning/mm9.chrom`
+
+`arrajpur@crick:~/processing/yH2AX$ ../binning/clean_bedgraphs.pl AID_tr.bedgraph AID_tr ../binning/mm9.chrom`
+ 
+ 
+
+
+

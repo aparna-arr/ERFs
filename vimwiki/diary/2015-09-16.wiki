@@ -1,0 +1,31 @@
+= Lab Notes 09.16.15 =
+
+== Notes ==
+* found a bunch of errors in metaplot (no wig smooth, handling wig values as ints not soubles) and fixed
+* Now metaplot takes forever but is way more correct
+* start thinking of how to deal with idiotic linear (aka O(n^2)!)  chromosome search
+`arrajpur@crick:~/processing/yH2AX/metaplot$ metaplot --window 100 --step 1 --preprocessWig 6000 wigs/53BP1_minus_AID_tr_1.bedgraph.wig mm9_clean_genes_TSS6kb.bed cleangenes`
+* `std::set_intersection` looks like the algorithm needed to extract the common chrs. in `<algorithm>`
+* It is linear time complexity apparently.
+* example usage
+
+`set_intersection(v1.begin(),v1.end(),v2.begin(),v2.end(),back_inserter(v3));`
+
+* I should do a string bsearch to find if a chr is in the vector already, if so then do something. My comparison alg is not that bad actually ... it's only the search that is awful (linear, on unsorted vector). 
+* All my searches are linear, even the wig one and even the vector checking one. O(len_bed_vector * # beds + len_wig_vector + len_all_chrs) so O(n). Not bad. I can prob turn this into O( (numBeds + 1)logn + n ) which is still really O(n) but bioinformatics ... (n being # of chrs)
+
+* set_intersection might be cleaner but will not be faster than switching out the linear searches for binary.
+	- but won't the sort take linear time to complete, thus removing the use of logn? Presumably we sort once then search n times so nlogn instead of n^2. 
+
+* C++ allows string comparisons so no overloading either!
+* bedfile split is SUPER fast
+* The wig is super slow, of course. and with the stacks it gets tricky to modify the process ... check if C++ has an easily useable cache
+
+* going to test with wig sliding window = span 1
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/span1$ srun -p bigmemm metaplot --preprocessWig --readSplitBed ../split_cleangenes 6000 53BP1_minus_AID_tr_1.bedgraph.wig ../mm9_clean_genes_TSS6kb.bed cleangenes`
+
+* for previous run testing deleting memory:
+arrajpur@crick:~/processing/yH2AX/metaplot$ R --no-save < metaplot_outfile.R 
+arrajpur@crick:~/processing/yH2AX/metaplot$ mv metaplot_outfile.pdf test1.pdf
+* exactly the same.

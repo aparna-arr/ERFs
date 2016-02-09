@@ -1,0 +1,13 @@
+= Lab Notes 10.20.15 =
+
+== Notes ==
+* debugging metaplot-thread with real files
+* somehow the RPA bed file has no strand and so this program is printing a binary character instead of strand
+
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' ~/processing/yH2AX/53BP1_RPA_M2P2_broadpeak-map-back_1kbmin.bed > RPA.bed
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ srun -p bigmemh --ntasks=1 --cpus-per-task=50 ../../metaplot-thread --preprocessBed 1 --threadChroms 1 10000 ~/processing/yH2AX/metaplot/wigs/53BP1_minus_1.wig RPA.bed RPA
+* that didn't solve the segfault
+
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ for i in {0..1000} ; do bedtools shuffle -chrom -i RPA.bed -g ~/processing/binning/mm9.chrom > monteCarloBeds/shuffle_$i.bed ; done 
+arrajpur@crick:~/github/metaplot_Cpp/threading/test/0$ for i in {0..1000} ; do bedtools shuffle -chrom -i RPA.bed -g ~/processing/binning/mm9.chrom | sort -k 1,1 -k 2,2n > monteCarloBeds/shuffle_$i.bed ; done
+

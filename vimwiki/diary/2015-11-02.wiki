@@ -1,0 +1,189 @@
+= Lab Notes 11.2.15 =
+
+== Notes ==
+* Finished simulations:
+	- 53BP1 RPA
+	- 53BP1_1
+	- 53BP1_2
+	- AIDtr RPA
+	- AIDtr_1
+	- AIDtr_2
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_1_yH2AX_RPA_broad$ cp ../sims/53BP1_1_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_1_yH2AX_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_2_yH2AX_RPA_broad$ cp ../sims/53BP1_2_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_2_yH2AX_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_1_yH2AX_RPA_narrow$ cp ../sims/53BP1_1_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_1_yH2AX_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+``arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_2_yH2AX_RPA_narrow$ cp ../sims/53BP1_2_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt``
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_2_yH2AX_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_1_yH2AX_RPA_broad$ cp ../sims/53BP1_AIDtr_1_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_1_yH2AX_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_2_yH2AX_RPA_broad$ cp ../sims/53BP1_AIDtr_2_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_2_yH2AX_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_1_yH2AX_RPA_narrow$ cp ../sims/53BP1_AIDtr_1_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_1_yH2AX_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_2_yH2AX_RPA_narrow$ cp ../sims/53BP1_AIDtr_2_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_2_yH2AX_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_RPA_RPA_broad$ cp ../sims/53BP1_RPA_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_RPA_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt  `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_RPA_RPA_narrow$ cp ../sims/53BP1_RPA_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_RPA_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_narrow$ cp ../sims/53BP1_AIDtr_RPA_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_narrow$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_broad$ cp ../sims/53BP1_AIDtr_RPA_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_broad$ cut -f 3 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_narrow$ cp ../sims/53BP1_AIDtr_RPA_sim/metaplot_outfile.txt simulation_metaplot_outfile.txt`
+
+`arrajpur@crick:~/processing/yH2AX/metaplot/threaded/metaplot_53BP1_AIDtr_RPA_narrow$ cut -f 2 simulation_metaplot_outfile.txt | paste metaplot_outfile.txt - > metaplot_outfile_with_sim.txt `
+
+* okay, did not do gene simulations so I don't have those.
+* Simulations done
+* Removing blacklist from alt ERFs
+
+`arrajpur@crick:~/processing/metaplot$ wc -l AltMethodERFs.bed`
+`941 AltMethodERFs.bed`
+
+`arrajpur@crick:~/processing/metaplot$ awk '{print $3 - $2}' AltMethodERFs.bed | awk '{sum+=$1} END {print sum/NR}'`
+`317019`
+
+`arrajpur@crick:~/processing/metaplot$ blacklist.sh AltMethodERFs.bed 1`
+
+`arrajpur@crick:~/processing/metaplot$ wc -l AltMethodERFs.bed.blacklistrm.1kbmin `
+`1228 AltMethodERFs.bed.blacklistrm.1kbmin`
+
+`arrajpur@crick:~/processing/metaplot$ awk '{print $3 - $2}' AltMethodERFs.bed.blacklistrm.1kbmin | awk '{sum+=$1} END {print sum/NR}'`
+`241890`
+
+* running ERFs metaplots
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ../../RPA.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+
+* appears to be no pattern, probably because the ERFs are so big.
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 200000 ../../RPA.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 10000 ../../RPA.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+
+* checking origERFs
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA/origERFs$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 10000 ../../../RPA.wig ~/erfs_hotspots.bed origERFs`
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA/origERFs$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ../../../RPA.wig ~/erfs_hotspots.bed origERFs`
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ../../RPA.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin AltERFs`
+
+* making metaplot with both ERFs
+
+`arrajpur@crick:~/processing/metaplot/ERFs/RPA$ cut -f 2 origERFs/metaplot_outfile.txt | paste metaplot_outfile.txt - > bothERFs_metaplot_outfile.txt`
+
+* BRCA1
+
+`arrajpur@crick:~/processing/metaplot/ERFs/BRCA1$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ../../BRCA1.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs origERFs``
+
+* SMC5
+
+`arrajpur@crick:~/processing/metaplot/ERFs/SMC5$ srun -p bigmemm --cpus-per-task=25 --exclusive ~/github/metaplot_Cpp/threading/metaplot-thread --threadChroms --threadBeds 1 --preprocessBed 1 20000 ../../SMC5.wig ../../AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed AltERFs origERFs`
+
+* overlap statistics:
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -v -a ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin -b ~/erfs_hotspots.bed | wc -l`
+`702`
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -v -b ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin -a ~/erfs_hotspots.bed | wc -l`
+`158`
+
+`(619 - 158)/619*100`
+`74.47495961227786752800`
+
+`(1228 - 702) / 1228*100`
+`42.83387622149837133500`
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -a ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin -b ~/erfs_hotspots.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum}' `
+`82113479`
+
+`arrajpur@crick:~/processing/stats$ awk '{print $3 - $2}' ../metaplot/AltMethodERFs.bed | awk '{sum+=$1} END {print sum}'`
+`298315077`
+
+`arrajpur@crick:~/processing/stats$ awk '{print $3 - $2}' ~/erfs_hotspots.bed | awk '{sum+=$1} END {print sum}'`
+`128553581`
+
+`82113479/298315077*100`
+`27.52575559565164049600`
+
+`82113479/128553581*100`
+`63.87490598181002830200`
+
+`arrajpur@crick:~/processing/stats$ bedtools intersect -u -a ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin -b ~/erfs_hotspots.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum}'`
+`185795420`
+`arrajpur@crick:~/processing/stats$ bedtools intersect -u -b ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin -a ~/erfs_hotspots.bed | awk '{print $3 - $2}' | awk '{sum+=$1} END {print sum}'`
+`116856939`
+
+`82113479/185795420*100`
+`44.19564217460258169900`
+
+`82113479/116856939*100`
+`70.26838089606300572300`
+
+* should do a peak overlap simulation
+* should map BRCA1, SMC5, RPA to alt and orig erfs then do corr plot matrix (one for altERFs, one for origERFs)
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/BRCA1.wig ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/RPA.wig ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed`
+
+`arrajpur@crick:~/processing/stats$ perl -I /home/mitochi/bin/ -I /home/arrajpur/bin/ /home/mitochi/bin/map_wig_to_bed_BIG.pl -r /home/arrajpur/cache/ -m -w ../metaplot/SMC5.wig ../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin ~/erfs_hotspots.bed`
+
+* boxplots made
+* Correlation matrix code:
+`> png("Corr_AltERFs.png")`
+`> ggplot(corr.m, aes(x=Var1, y=Var2, fill=value)) + geom_tile() + geom_text(aes(Var1, Var2, label=value)) + scale_fill_gradient2(low="darkblue", mid="white", high="darkred", limits=c(-1,1), midpoint=0) + ggtitle("AltERFs Correlation Matrix") + xlab("") + ylab("")`
+`> dev.off()`
+
+* heatmaps
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' ../../../metaplot/AltMethodERFs.bed.blacklistrm.1kbmin > AltERFs_blacklistrm.bed`
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ preprocess_bed_centered.pl AltERFs_blacklistrm.bed 10000 > AltERFs_blacklistrm_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ heatmap.sh 500 50 5000 ../../../metaplot/BRCA1.wig AltERFs_blacklistrm_processed.bed `
+
+* well that didn't work
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ heatmap.sh 100 1 1000 ../../../metaplot/RPA.wig AltERFs_blacklistrm_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ heatmap.sh 100 1 1000 ../../../metaplot/SMC5.wig AltERFs_blacklistrm_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/erfs/rpa$ heatmap.sh 100 1 1000 ../../../metaplot/BRCA1.wig AltERFs_blacklistrm_processed.bed `
+
+* OrigERFs
+`arrajpur@crick:~/processing/heatmap/erfs$ awk '{print $1 "\t" $2 "\t" $3 "\t+"}' ~/erfs_hotspots.bed > erfs_hotspots_strand.bed`
+
+`arrajpur@crick:~/processing/heatmap/erfs$ preprocess_bed_centered.pl erfs_hotspots_strand.bed 10000 > erfs_hotspots_strand_processed.bed `
+
+`arrajpur@crick:~/processing/heatmap/erfs$ heatmap.sh 100 1 1000 ../../metaplot/SMC5.wig erfs_hotspots_strand_processed.bed `
+
+* weird ... middleERFs have worst correlation. I ranked by RPA, then BRCA1, then SMC5. 

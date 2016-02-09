@@ -1,0 +1,46 @@
+= Lab Notes 12.29.15 =
+== Notes ==
+* got PCA of each cluster to workI think--NOPE--now I got it
+* running LDA on all subclusters also 
+* note: using pca_randomForest2.R
+
+arrajpur@crick:~/processing/pol2_poised$ chmod +x chromHMM_to_ERFs.pl 
+
+`arrajpur@crick:~/processing/pol2_poised$ ./chromHMM_to_ERFs.pl chromHMM/chromatin_states_chromHMM_mm9/spleen_cStates_HMM ../stats/beds/AltMethodERFs.bed chromHMM_to_ERFs_test.bed`
+
+MAKE SURE chromHMM states are properly sorted! Or else weird errors
+`arrajpur@crick:~/processing/pol2_poised$ sort -k 1,1 -k 2,2n chromHMM/chromatin_states_chromHMM_mm9/spleen_cStates_HMM > chromHMM_spleen_sorted`
+`arrajpur@crick:~/processing/pol2_poised$ ./chromHMM_to_ERFs.pl chromHMM_spleen_sorted ../stats/beds/AltMethodERFs.bed chromHMM_to_ERFs_test.bed`
+
+arrajpur@crick:~/processing/stats/LDA$ cp ../../pol2_poised/chromHMM_to_ERFs_test.bed .
+
+source("pca_randomForest2.R")
+dataNum<-subset(data, select=-c(sample))
+pdf("plot.pdf", height=25, width=30)
+ggplot(data=melt(round(cor(log10(dataNum), method="spearman"), 1)), aes(x=Var1, y=Var2, fill=value)) + geom_tile() + geom_text(aes(Var1, Var2, label=value)) + scale_fill_gradient2(low="darkblue", mid="white", high="darkred", limits=c(-1,1), midpoint=0) 
+dev.off()
+* this is cool but I want to cluster
+
+> col_breaks = c(seq(-1, -0.1, length=10), seq(-0.09, 0.09), seq(0.1,1,length=10))
+> my_palette<-colorRampPalette(c("darkblue", "white", "darkred"))(n=length(col_breaks)-1)
+
+data, select=-c(sample))
+t.pdf", height=15, width=15)
+
+> heatmap.2(cor(log10(dataNum), method="spearman"), scale="none", breaks=col_breaks, col=my_palette, trace="none", density.info="histogram", margins=c(10,10))
+
+> dev.off()
+
+* made a really cool heatmap, emailed. Looks like ERFs are associating with poised enhancer stuff more than transcription.
+
+* Original purpose: tons of things correlate well with each other which may mess up PCA. 
+
+* wrote script to clean genes for GROseq
+arrajpur@crick:~/processing/pol2_poised/groseq$ chmod +x clean_genes.pl 
+arrajpur@crick:~/processing/pol2_poised/groseq$ ./clean_genes.pl ../mm9_clean_genes.bed groseq_mm9_clean.bed
+
+arrajpur@crick:~/processing/pol2_poised/groseq$ wc -l groseq_mm9_clean.bed.*
+  7923 groseq_mm9_clean.bed.negative.5000
+  7846 groseq_mm9_clean.bed.positive.5000
+ 15769 total
+:

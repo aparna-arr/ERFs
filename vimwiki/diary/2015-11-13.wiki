@@ -1,0 +1,17 @@
+= Lab Notes 11.13.15 =
+
+== Notes ==
+
+* looks like the mapping finished.
+* do replicate correlations, then if they seem good find avg of replicates for each bed file and use that? eaiser than raw data processing to get the merge of replicates from bam files
+* but metaplots will be a pain
+* unless I'm lucky and because there's tons of 0s they used exactly the same bins for both replicates??? nope ... 
+* oh drat the H3K27 is fixed step
+* so is H3K4
+* fix this before metaplots
+
+* files are not sorted for some reason so am sorting
+
+`arrajpur@crick:~/processing/stats/beds/histone_map$ for f in *; do sort -k 1,1 -k 2,2n $f > tmp ; mv tmp $f ; done`
+
+
